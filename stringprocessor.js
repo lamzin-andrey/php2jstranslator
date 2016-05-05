@@ -24,7 +24,7 @@ var StringProcessor = {
 		for (i = 0; i < L; i++) {
 			ch = s.charAt(i);
 			if (ch == '\n') {
-				r += quote + ' + \n' + quote;
+				r += '\\n' + quote + ' + \n' + quote;
 			} else {
 				r += ch;
 			}

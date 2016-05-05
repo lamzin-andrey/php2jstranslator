@@ -13,6 +13,8 @@
 
 Меняет в коде соединения строк с '.' на '+'.
 
+Меняет переносы в одной строковой переменной на соединение нескольких строковых переменных.
+
 Меняет в коде определения ассоциативного массива, такие как "['key' => 'value']" на "{'key':'value'}". Не поддерживает 'array()' construction. Все массивы должны быть определены с помощью конструкции '[]'.
 
 Меняет в коде код '$arr[] = $val;' на '$arr.push($val);'
@@ -39,6 +41,8 @@ Replace '$this', 'self' to 'this'.
 Extract variables from string, for example "Hello, $name {$user['surname']}!" replace to "Hello " + $name + $user['surname'] + "!";
 
 Replace string concatenation from '.' to '+'.
+
+Replace new line symbols in the one string variable to concatenate several string variables.
 
 Replace define associative array like "['key' => 'value']" to "{'key':'value'}". Do not support 'array()' construction. All arrays must define with '[]' construction.
 
