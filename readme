@@ -1,0 +1,46 @@
+#Простой транслятор php кода в javascript es5 код.
+
+2016 05 05 можно транслировать код одной php функции в код javascript функции.
+
+Собирает все переменные php  и выносит их в начало функции, предваряя ключевым словом var.
+
+Меняет в коде '->', '::' на '.';
+
+Меняет в коде '$this', 'self' на 'this'.
+
+Меняет в коде соединения строк с '.' на '+'.
+
+Меняет в коде определения ассоциативного массива, такие как "['key' => 'value']" на "{'key':'value'}". Не поддерживает 'array()' construction. Все массивы должны быть определены с помощью конструкции '[]'.
+
+Меняет в коде код '$arr[] = $val;' на '$arr.push($val);'
+
+Меняет в коде 'foreach ($array as $key => $item) {' на 'for ($key in $array) { $item = $array[$key];'.
+
+Меняет в коде 'foreach ($array as $item) {' на 'for (i100500 in $array) { $item = $array[i100500];'.
+
+Файл php.js содержит несколько аналогов стандартных php функций и будет пополняться новыми.
+
+
+
+#Simple php code to javascript es5 code translator
+
+
+2016 05 05 translate php function code to javascript function code.
+
+Collect all variables from body of the php function and define it with keyword var.
+
+Replace '->', '::' to '.';
+
+Replace '$this', 'self' to 'this'.
+
+Replace string concatenation from '.' to '+'.
+
+Replace define associative array like "['key' => 'value']" to "{'key':'value'}". Do not support 'array()' construction. All arrays must define with '[]' construction.
+
+Replace lexem like '$arr[] = $val;' to '$arr.push($val);'
+
+Replace 'foreach ($array as $key => $item) {' to 'for ($key in $array) { $item = $array[$key];'.
+
+Replace 'foreach ($array as $item) {' to 'for (i100500 in $array) { $item = $array[i100500];'.
+
+File php.js containts some analogs of php functions and will appear new.
