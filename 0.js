@@ -93,10 +93,11 @@ var Phpjs = {
 		s = s.replace(/\->/mg, '.');
 		//4 заменить все Math функции
 		s = this.setMathFunctions(s);
-		s = s.replace('new StdClass()', '{}');
-		s = s.replace('new \\StdClass()', '{}');
-		s = s.replace('new StdClass', '{}');
-		s = s.replace('new \\StdClass', '{}');
+		
+		s = s.replace(/new\s+StdClass\(\)/gm, '{}');
+		s = s.replace(/new\s+\\StdClass\(\)/gm, '{}');
+		s = s.replace(/new\s+StdClass/gm, '{}');
+		s = s.replace(/new\s+\\StdClass/gm, '{}');
 		//TODO $arr[] = some; -> $arr.push(some);
 		s = this.arrayPush(s);
 		//инициализацию ассоциативных массивов  на инициализацию объектов
@@ -172,7 +173,7 @@ var Phpjs = {
 		StringProcessor.extractVars(sArgs);
 		head = s.substring(0, start);
 		tail = s.substring(end);
-		s = head + '(' + StringProcessor.vars.join(', ') + ')' + tail;
+		s = head + '(' + StringProcessor.vars.join(', ') +  tail;
 		return s;
 	},
 	/**
@@ -246,13 +247,16 @@ var Phpjs = {
 	 * @return {Boolean} true если [] часть оператора получения в массив нового элемента
 	*/
 	isPushLexema:function(s, pos) {
-		var i;
+		var i, buksEntry = 0;
 		for (i = pos; i > -1; i--) {
 			if (s.charAt(i) == '=') {
 				return false;
 			}
-			if (s.charAt(i) == ';') {
+			if (s.charAt(i) == '$') {
 				return true;
+			}
+			if (s.charAt(i) == '\n' && !buksEntry) {
+				return false;
 			}
 			if (s.charAt(i) == '{') {
 				return true;
@@ -324,9 +328,10 @@ var Phpjs = {
 	*/
 	setMathFunctions:function(s) {
 		var fs = ['ceil', 'floor', 'abs', 'sin', 'cos']; //TODO продолжить
-		var i, L = fs.length;
+		var i, L = fs.length, re;
 		for (i = 0; i < L; i++) {
-			s = s.replace(fs[i], 'Math.' + fs[i]);
+			re = new RegExp(fs[i], 'mg');
+			s = s.replace(re, 'Math.' + fs[i]);
 		}
 		return s;
 	},
