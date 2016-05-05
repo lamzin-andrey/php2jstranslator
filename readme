@@ -1,4 +1,5 @@
-#Простой транслятор php кода в javascript es5 код.
+Простой транслятор php кода в javascript es5 код.
+
 
 2016 05 05 можно транслировать код одной php функции в код javascript функции.
 
@@ -22,7 +23,7 @@
 
 
 
-#Simple php code to javascript es5 code translator
+Simple php code to javascript es5 code translator
 
 
 2016 05 05 translate php function code to javascript function code.
