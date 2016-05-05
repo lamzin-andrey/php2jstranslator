@@ -9,6 +9,8 @@
 
 Меняет в коде '$this', 'self' на 'this'.
 
+Извлекает из строки переменные, например "Hello, $name {$user['surname']}!" меняется на "Hello " + $name + $user['surname'] + "!";
+
 Меняет в коде соединения строк с '.' на '+'.
 
 Меняет в коде определения ассоциативного массива, такие как "['key' => 'value']" на "{'key':'value'}". Не поддерживает 'array()' construction. Все массивы должны быть определены с помощью конструкции '[]'.
@@ -33,6 +35,8 @@ Collect all variables from body of the php function and define it with keyword v
 Replace '->', '::' to '.';
 
 Replace '$this', 'self' to 'this'.
+
+Extract variables from string, for example "Hello, $name {$user['surname']}!" replace to "Hello " + $name + $user['surname'] + "!";
 
 Replace string concatenation from '.' to '+'.
 
