@@ -116,5 +116,5 @@ function strlen(s) {
 }
 function Request(){}
 Request.prototype.input = function(v, def) {
-	return FlipcatWebAppLibrary._GET(v, def);
+	return Library._GET(v, def);
 }
