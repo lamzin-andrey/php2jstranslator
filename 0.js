@@ -143,7 +143,7 @@ var Phpjs = {
 		}
 		r = 'var ' + buf.join(', ') + ';' + offset;
 		head = s.substring(0, p);
-		tail = s.substring(p);
+		tail = s.substring(p + 1);
 		s = head + r + tail;
 		return s;
 	},
