@@ -114,6 +114,67 @@ function strval(s) {
 function strlen(s) {
 	return s.length;
 }
+
+
+function empty(v) {
+	if (!v) {
+		return true;
+	}
+	if (v instanceof Array) {
+		if (v.length == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+function array() {
+	return [];
+}
+function sizeof(n){
+	if (n && n.length) {
+		return n.length;
+	}
+	if (n && (n instanceof Object) ) {
+		var sz = 0, i;
+		for (i in n) {
+			sz++;
+		}
+		return sz;
+	}
+	return null;
+}
+function pathinfo(path) {
+	var a = path.split('/'),
+		filename = a[a.length - 1], ext,  r = {};
+	a.pop();
+	r.dirname = a.join('/');
+	r.basename = filename;
+	a = filename.split('.');
+	ext = a[a.length - 1];
+	a.pop();
+	filename = a.join('.');
+	r.filename = filename;
+	r.extension = ext;
+	return r;
+}
+function array_values(v) {
+	var r = [];
+	if (v instanceof Array) {
+		for (var i = 0; i < v.length; i++) {
+			if (v[i]) {
+				r.push( v[i] );
+			}
+		}
+	} else if (v instanceof Object) {
+		for (var i in v) {
+			if (v[i]) {
+				r.push( v[i] );
+			}
+		}
+	}
+	return r;
+}
+
 function Request(){}
 Request.prototype.input = function(v, def) {
 	return Library._GET(v, def);
