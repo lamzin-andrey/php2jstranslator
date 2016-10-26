@@ -82,16 +82,18 @@ var Phpjs = {
 		//2 скопировать стеки f в стеки c
 		this.copyFunctionsStackToClassStack();
 		//TODO заменить на 
-		s = classParser.parse(s, this);//TODO
+		s = ClassParser.parse(s, this);//TODO
 		
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
 		this.clearFunctionStack();
 		this.copyClassStackToFunctionsStack();
+		this.replaceNewLines();
 		s = this.restorePlaceholders(s);
-		//TODO return s;
+		
+		return s;
 
 
-		return this.translateFunction(lines);
+		//return this.translateFunction(lines);
 	},
 	/**
 	 * @description транслирует код php функции в код js функции
