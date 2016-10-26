@@ -76,9 +76,14 @@ var Phpjs = {
 	*/
 	translate:function(lines) {
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
+		var s = this.grabClassCommentAndString(lines);//TODO
 		//2 скопировать стеки f в стеки c
+		this.copyFunctionsStackToClassStack();//TODO
 		//3 распарсить код класса, заполнить стек функций элементами имя тело аргументы
 		// 3.1 class Foo extends Bar { ... } вырезаем, оставляем только ...
+		/** @var classInfo {className, classBody, extendsClassName, interfaces:[], template} */
+		//здесь template - это наша s, в которой ... заменен на placeholder_class_body
+		var classInfo = classParser.grabClassDefine(s);//TODO Этот и ...
 		// 3.2 Находим ближайшее вхождение function от него получаем имя, аргументы и тело.
 		// 3.3 От того же вхождения function надо как-то получить static public
 		//     Например пятиться назад, пока встретился "не символ", потом инвертировать полученное слово
@@ -87,12 +92,28 @@ var Phpjs = {
 		// 4 Все эти методы менять на плейсхолдеры. Должны остаться только плейсхолдеры и объявления 
 		//    полей класса.
 		//5 Последовательно ищем static  и все остальные поля класса, меняем на плейсхолдеры.
+		classParser.parseBody(classInfo.classBody);//TODO ...этот
+		//TODO заменить на 
+		classParser.parse(s);//TODO
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
+		for (var i in classParser.cFunctions) {
+			var fLines = 'function ' + classParser.cFunctions[i].name + '(' + 
+				classParser.cFunctions[i].args,join(', ') + ') ' + classParser.cFunctions[i].body;
+			var translate = this.translateFunction(fLines);
+			classParser.setFunctionData(translate, i);//TODO
+		}
 		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
+		classParser.restoreFields();//TODO этот
+		s = classParser.buildClassDefinion(classInfo);//TODO все слепит И ЭТОТ
+		//TODO меняем на 
+		s = classParser.build();
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
-
+		this.copyClassStackToFunctionsStack();
+		this.clearStack();
+		s = this.restorePlaceholders(s);
+		//TODO return s;
 		return this.translateFunction(lines);
 	},
 	/**
@@ -314,7 +335,6 @@ var Phpjs = {
 		}
 		return s;
 	},
-	//TODO доработать для вложенных
 	/**
 	 * @description Заменяет определение ассоциативного массива на определение объекта
 	 * @param {String } s текст php функции
