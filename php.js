@@ -175,6 +175,29 @@ function array_values(v) {
 	return r;
 }
 
+
+
+function strtolower(s) {
+	return s.toLowerCase();
+}
+function mb_strtolower(s) {
+	return s.toLowerCase();
+}
+function mb_strlen(s) {
+	return s.length;
+}
+function mb_substr(s, index, length) {
+	return s.substring(index, (index + length));
+}
+function mb_strpos(s, substr) {
+	var i = s.indexOf(substr);
+	if (i == -1) {
+		return false;
+	}
+	return i;
+}
+
+
 function Request(){}
 Request.prototype.input = function(v, def) {
 	return Library._GET(v, def);

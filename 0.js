@@ -290,8 +290,8 @@ var Phpjs = {
 	assocArray2Object:function(s) {
 		var source = s, prevP = null;
 		while(~s.indexOf('=>')) {
-			var p, openB = null, closeB = null, i, frag, repl;
-			p = s.indexOf('=>');
+			var p, openB = null, closeB = null, i, frag, repl,
+				p = s.indexOf('=>'), brCounter, ch;
 			if (p === prevP) {
 				return source;
 			}
@@ -306,18 +306,27 @@ var Phpjs = {
 			}
 			openB = i;
 			i = p;
-			while (s.charAt(i) != ']') {
+			brCounter = 1;
+			while (brCounter != 0) { /* s.charAt(i) != ']' */
 				i++;
-				if (String(s.charAt(i)) == 'undefined') {
+				ch = s.charAt(i);
+				if (ch == '[') {
+					brCounter++;
+				}
+				if (ch == ']') {
+					brCounter--;
+				}
+				if (String(ch) == 'undefined') {
 					return source;
 				}
 			}
 			closeB = i;
 			frag = s.substring(openB, closeB + 1);
+			console.log(frag);
 			//console.log(frag);
 			repl = frag.replace(/=>/gi, ':');
-			repl = repl.replace('[', '{');
-			repl = repl.replace(']', '}');
+			repl = repl.replace(/\[/gi, '{');
+			repl = repl.replace(/\]/gi, '}');
 			s = s.replace(frag, repl);
 		}
 		return s;
