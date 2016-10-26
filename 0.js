@@ -62,6 +62,7 @@ var Phpjs = {
 	*/
 	/** @property {Boolean} true когда происходит парсинг кода включающего несколько функций */
 	parseFunctionsMode: false,
+
 	/** @property {Array} cStrings стек строковых переменных вне функций*/
 	cStrings : [],
 	
@@ -75,45 +76,21 @@ var Phpjs = {
 	 * @description временно вызывает translateFunction то есть пока можно транслировать одну функцию
 	*/
 	translate:function(lines) {
+		this.clearClassStack();
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
-		var s = this.grabClassCommentAndString(lines);//TODO
+		var s = this.grabClassCommentAndString(lines);
 		//2 скопировать стеки f в стеки c
-		this.copyFunctionsStackToClassStack();//TODO
-		//3 распарсить код класса, заполнить стек функций элементами имя тело аргументы
-		// 3.1 class Foo extends Bar { ... } вырезаем, оставляем только ...
-		/** @var classInfo {className, classBody, extendsClassName, interfaces:[], template} */
-		//здесь template - это наша s, в которой ... заменен на placeholder_class_body
-		var classInfo = classParser.grabClassDefine(s);//TODO Этот и ...
-		// 3.2 Находим ближайшее вхождение function от него получаем имя, аргументы и тело.
-		// 3.3 От того же вхождения function надо как-то получить static public
-		//     Например пятиться назад, пока встретился "не символ", потом инвертировать полученное слово
-		//     и сравнить его с public private protected static
-		//     закончить процесс, когда встретился } или ; или вышли за начало строки
-		// 4 Все эти методы менять на плейсхолдеры. Должны остаться только плейсхолдеры и объявления 
-		//    полей класса.
-		//5 Последовательно ищем static  и все остальные поля класса, меняем на плейсхолдеры.
-		classParser.parseBody(classInfo.classBody);//TODO ...этот
+		this.copyFunctionsStackToClassStack();
 		//TODO заменить на 
-		classParser.parse(s);//TODO
-		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
-		for (var i in classParser.cFunctions) {
-			var fLines = 'function ' + classParser.cFunctions[i].name + '(' + 
-				classParser.cFunctions[i].args,join(', ') + ') ' + classParser.cFunctions[i].body;
-			var translate = this.translateFunction(fLines);
-			classParser.setFunctionData(translate, i);//TODO
-		}
-		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
-		//   менять на строку, которая будет переправлена в constructor
-		//   иначе на комментарий вида @property
-		classParser.restoreFields();//TODO этот
-		s = classParser.buildClassDefinion(classInfo);//TODO все слепит И ЭТОТ
-		//TODO меняем на 
-		s = classParser.build();
+		s = classParser.parse(s, this);//TODO
+		
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
+		this.clearFunctionStack();
 		this.copyClassStackToFunctionsStack();
-		this.clearStack();
 		s = this.restorePlaceholders(s);
 		//TODO return s;
+
+
 		return this.translateFunction(lines);
 	},
 	/**
@@ -625,6 +602,50 @@ var Phpjs = {
 		data.push({k:pc, v:s});
 		this.placeholderN++;
 		return pc;
-	}
+	},
+	/* Заменить строки и комментарии на плейсхолдеры в коде класса, используя существующий код */
+	grabClassCommentAndString:function(lines) {
+		this.clearFunctionStack();
+		this.parseFunctionsMode = true;
+		var r = this.grabCommentsStringsVars(lines);
+		this.parseFunctionsMode = false;
+		return r;
+	},
+	/** @description скопировать стеки f в стеки c */
+	copyFunctionsStackToClassStack:function() {
+		this.cStrings  = [];
+		this.cComments = [];
+		var i, L = this.fStrings.length;
+		for (i = 0; i < L; i++) {
+			this.cStrings.push( this.fStrings[i] );
+		}
+
+		L = this.fComments.length;
+		for (i = 0; i < L; i++) {
+			this.cComments.push( this.fComments[i] );
+		}
+	},
+	/** @description скопировать стеки c в стеки f */
+	copyClassStackToFunctionsStack:function() {
+		this.clearFunctionStack();
+		var i, L = this.cStrings.length;
+		for (i = 0; i < L; i++) {
+			this.fStrings.push( this.cStrings[i] );
+		}
+
+		L = this.cComments.length;
+		for (i = 0; i < L; i++) {
+			this.fComments.push( this.cComments[i] );
+		}
+	},
+	clearClassStack:function() {
+		this.cVars = [];
+		this.cComments = [];
+		this.cStrings = [];
+		//this.fForeach = [];
+		//this.placeholderN = 0;
+		this.locvarCounter = 0;
+	},
+	
 };
 
