@@ -3,7 +3,16 @@
 */
 var ClassParser = {	
 	/** @property classInfo {className, classBody, extendsClassName, interfaces:[], template} */
-
+	/**
+	 * @property cFunctions {Array} массив хеш функйий
+	 * Элемент: {placeholder:String, name:String, args:[], body:String}
+	 * placeholder - ключ, на который заменена функция в исходном коде
+	 * name - имя функции
+	 * args - массив аргументов функции 
+	 *        Элемент: String
+	 * body - текст функции от открывающей { до закрывающей }
+	*/
+	cFunctions:[],
 
 	/** Парсит определение одного php класса */
 	parse:function(sClassPhp, cPhpjs) {
@@ -13,16 +22,9 @@ var ClassParser = {
 		// 3.1 class Foo extends Bar { ... } вырезаем, оставляем только ...
 		/** @var classInfo {className, classBody, extendsClassName, interfaces:[], template} */
 		//здесь template - это наша s, в которой ... заменен на placeholder_class_body
-		var classInfo = this.grabClassDefine(s);//TODO
+		var classInfo = this.grabClassDefine(s);
 		console.log(this.classInfo);
-		// 3.2 Находим ближайшее вхождение function от него получаем имя, аргументы и тело.
-		// 3.3 От того же вхождения function надо как-то получить static public
-		//     Например пятиться назад, пока встретился "не символ", потом инвертировать полученное слово
-		//     и сравнить его с public private protected static
-		//     закончить процесс, когда встретился } или ; или вышли за начало строки
-		// 4 Все эти методы менять на плейсхолдеры. Должны остаться только плейсхолдеры и объявления 
-		//    полей класса.
-		//5 Последовательно ищем static  и все остальные поля класса, меняем на плейсхолдеры.
+		
 		/*classParser.parseBody(classInfo.classBody);//TODO
 
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
@@ -35,6 +37,26 @@ var ClassParser = {
 		//TODO меняем на 
 		s = classParser.build();*/
 		return s;
+	},
+
+	parseBody:function() {
+		this.grabFunctions();
+		this.grabFields();
+		// 4 Все эти методы менять на плейсхолдеры. Должны остаться только плейсхолдеры и объявления 
+		//    полей класса.
+		//5 Последовательно ищем static  и все остальные поля класса, меняем на плейсхолдеры.
+	},
+	/** 
+     * @description Собирает функции в массив cFunctions
+	*/
+	grabFunctions:function() {
+		var s = this.classInfo.classBody;
+		// 3.2 Находим ближайшее вхождение function от него получаем имя, аргументы и тело.
+		// 3.3 От того же вхождения function надо как-то получить static public
+		//     Например пятиться назад, пока встретился "не символ", потом инвертировать полученное слово
+		//     и сравнить его с public private protected static
+		
+		//     закончить процесс, когда встретился } или ; или вышли за начало строки
 	},
 	/** @var classInfo {className, classBody, extendsClassName, interfaces:[], template} */
 		
