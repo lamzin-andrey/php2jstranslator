@@ -91,8 +91,6 @@ var Phpjs = {
 		s = this.restorePlaceholders(s);
 		
 		return s;
-
-
 		//return this.translateFunction(lines);
 	},
 	/**
