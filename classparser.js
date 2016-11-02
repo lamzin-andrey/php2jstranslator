@@ -14,8 +14,20 @@ var ClassParser = {
 	 * visible - string private, protected or public
 	 * isStatic  - true
 	*/
-	cFunctions:[],
-	pcp : 'phpjs_f_placeholder_',
+	cFunctions: [],
+	/**
+	 * @property cFunctions {Array} массив хеш функйий
+	 * Элемент: {placeholder:String, :String, args:[], body:String}
+	 * placeholder - ключ, на который заменена функция в исходном коде
+	 * name - имя функции
+	 * args - массив аргументов функции 
+	 *        Элемент: String
+	 * body - текст функции от открывающей { до закрывающей }
+	 * visible - string private, protected or public
+	 * isStatic  - true
+	*/
+	cFields   : [],
+	pcp       : 'phpjs_f_placeholder_',
 	pcpCounter : 0,
 
 	/** Парсит определение одного php класса */
@@ -29,15 +41,20 @@ var ClassParser = {
 		var classInfo = this.grabClassDefine(s);
 		//console.log(this.classInfo);
 		
-		/*classParser.parseBody(classInfo.classBody);//TODO
+		this.parseBody();//TODO тестировать все используемые функции
 
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
-		for (var i in this.cFunctions) {
+		/*for (var i in this.cFunctions) {
 			var fLines = 'function ' + this.cFunctions[i].name + '(' + 
 				this.cFunctions[i].args,join(', ') + ') ' + this.cFunctions[i].body;
 			var translate = cPhpJs.translateFunction(fLines);
 			this.setFunctionData(translate, i);//TODO
 		}
+
+		//6.1 поля собрат в конструктор или в отдельную секцию для static класса
+		//конструктор получить в цикле выше. В него при получении добавить спец __PHPJS_CLASS_INITALIZE__
+		//Этот маркер заменить на собранные поля.
+
 		//TODO меняем на 
 		s = classParser.build();*/
 		return s;
@@ -46,11 +63,89 @@ var ClassParser = {
 	parseBody:function() {
 		this.grabFunctions();
 		//5 Последовательно ищем static  и все остальные поля класса, меняем на плейсхолдеры.
-		this.grabFields();//TODO
+		this.grabFields();
+	},
+	/** 
+     * @description Собирает поля класса в массив cFields
+	*/
+	grabFields:function() {
+		var s = this.classInfo.classBody,
+			keywords = ['public', 'private', 'protected', 'static'],
+			metadata = {},
+			placeholder,
+			i, kw, p = 0, start, end, data;
+		for(i = 0; i < keywords.length; i++) {
+			kw = keywords[i];
+			p = s.indexOf(kw);
+			while (p != -1) {
+				end = s.indexOf(';', p);
+				start = s.lastIndexOf(';', p);
+				if (start == -1 && kw != 'static') {
+					start = s.lastIndexOf('static', p);
+				}
+				if (start == -1) {
+					start = p;
+				}
+				if (end > start) {
+					data = this.parseClassField(s.substring(start, end + 1));
+					if (!data.success) {
+						p = s.indexOf(kw, p + 1);
+						continue;
+					} else {
+						this.cFields.push(data);
+						s = s.replace(data.raw, data.placeholder);
+						p = s.indexOf(kw);
+					}
+				} else {
+					p = s.indexOf(kw, p + 1);
+				}
+			}
+		}
+		this.classInfo.classBody = s;
+	},
+	/** 
+     * @description Собирает поля класса в массив cFields
+     * @param {String} s - строка определяющая поле класса, например `static public $arr = [1,2,3];`
+     * @return {placeholder, varname, value, visible, isStatic}
+	*/
+	parseClassField:function(s) {
+		var brStart = s.indexOf('['),
+			brEnd = s.lastIndexOf(']'),
+			array, res = {raw:s}, i, word, placeholder;
+		placeholder = this.pcp + this.pcpCounter;
+		res.placeholder = placeholder;
+		this.pcpCounter++;
+
+		if (brStart != -1 && brEnd != -1 && brStart < brEnd ) {
+			array = s.substring(brStart, brEnd + 1);
+			res.value = array;
+			s = s.replace(array, '');
+		}
+		array = s.split(/\s/);
+		for (i = 0; i < array.length; i++) {
+			word = array[i];
+			word = word.replace(/;$/, '');
+			word = word.replace(/^;/, '');
+			if (word.length > 1) {
+				if (word == 'static') {
+					res.isStatic = true;
+				} else if (word == 'private' || word == 'public' || word == 'protected') {
+					res.visible = word;
+				} else if (word.charAt(0) == '$') {
+					res.varname = word;
+					res.success = true;
+				} else if (word.charAt(0) == '=') {
+					continue;
+				} else if (!res.value && word != ';'){
+					res.value = word;
+				}
+			}
+		}
+		return res;
 	},
 	/** 
      * @description Собирает функции в массив cFunctions
-      * TODO проверить
+     * TODO проверить
 	*/
 	grabFunctions:function() {
 		// 3.2 Находим ближайшее вхождение function от него получаем имя, аргументы и тело.
@@ -68,7 +163,7 @@ var ClassParser = {
 			p = s.indexOf(f);
 		while (p != -1) {
 			/* s - content, p - position, f - function */
-			metadata = this.parseFunction(s, p, f);//TODO
+			metadata = this.parseFunction(s, p, f);
 			if (metadata.success) {
 				placeholder = this.pcp + this.pcpCounter;
 				this.pcpCounter++;

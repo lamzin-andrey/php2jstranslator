@@ -275,11 +275,12 @@ expect:function(val, expectVal, message, errMessage) {
 	if (val == expectVal) {
 		console.log(message + ' Ok');
 	} else {
+		console.log(' Err');
 		var s = "expect " + expectVal + " got " + val;
 		if (errMessage) {
 			s += " " + errMessage;
 		}
-		Error(s);
+		throw new Error(s);
 	}
 }
 };//end Object
