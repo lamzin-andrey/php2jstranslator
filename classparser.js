@@ -193,10 +193,10 @@ var ClassParser = {
 		var f = sFunction, bCount = 0, start = 0, sz = content.length, i, s = content, ch,
 			res = {}, body = '',
 			//переменные относящиеся к разбору имени
-			inArglist = 0, word = '', allow = '$abcdefghijklmnopqrstuvwxyz=', args = [],
+			inArglist = 0, word = '', allow = '$abcdefghijklmnopqrstuv_wxyz=[]', args = [],
 			//переменные относящиеся к разбору модификаторов области видимости  и типа функции
 			aWord = [], startPos;
-		allow.toUpperCase() + '0123456789';
+		allow += (allow.toUpperCase() + '0123456789');
 		for (i = position; i < sz; i++) {
 			ch = s.charAt(i);
 			if (ch == '{') {
@@ -236,7 +236,11 @@ var ClassParser = {
 				}
 			}
 		}
-		args = this.normalizeArgs(args);//TODO удаляет значения по умолчанию и типы данных
+		var dbg = false;
+		/*if (res.name == '_req') {
+			dbg = true;
+		}*/
+		args = this.normalizeArgs(args, dbg);//TODO удаляет значения по умолчанию и типы данных
 		if (res.closePosition) {
 			res.body = body;
 			res.args = args;
@@ -249,7 +253,7 @@ var ClassParser = {
 				if (~allow.indexOf(ch)) {
 					aWord.push(ch);
 				} else {
-					word = aWord.reverse().join();
+					word = aWord.reverse().join('');
 					aWord = [];
 					switch (word) {
 						case 'public':
@@ -265,7 +269,7 @@ var ClassParser = {
 					startPos = i;
 				}
 			}
-			res.rawContent = s.substring(startPos, metadata.closePosition);
+			res.rawContent = s.substring(startPos, res.closePosition);
 			res.success = true;
 			return res;
 		}
@@ -273,22 +277,63 @@ var ClassParser = {
 	/** 
 	 * @return {Array} массив строк аргументов, освобожденных от типа данных и значений по умолчанию
 	*/
-	normalizeArgs:function(args) {
-		var i, j, ch, s, arr, res = [];
+	normalizeArgs:function(args, dbg) {
+		args = this._prepareArgs(args, dbg);
+		/*if (dbg) {
+			console.log(args);
+		}*/
+		var i, j, ch, s, arr, res = [], val, pair;
 		for (i = 0; i < args.length; i++) {
 			s = args[i];
 			arr = s.split('=');
 			s = arr[0];
+			val = null;
+			if (arr[1]) {
+				val = arr[1];
+			}
 			arr = s.split(/\s+/);
 			for (j = 0; j < arr.length; j++) {
 				ch = arr[j];
 				if (ch.length && ch.charAt(0) == '$') {
-					res.push(ch);
+					pair = [];
+					pair.push(ch);
+					if (val) {
+						pair.push(val);
+					}
+					res.push(pair);
 					break;
 				}
 			}
 		}
 		return res;
+	},
+	/**
+     * @description Собирает значения по умолчания переменных в переменные
+     * Например если передан ['$varname', '=', 'value', 'array', '$arr'] вернет ['$varname=value', 'array', '$arr']
+	*/
+	_prepareArgs:function(args, dbg) {
+		/*if (dbg) {
+			console.log('_prepareArgs get args:');
+			console.log(args);
+		}*/
+		var buf = [], i, j, prev, bufSz = 0;
+		for (i = 0; i < args.length; i++) {
+			j = args[i];
+			if (j == '=') {
+				prev = buf[bufSz - 1];
+				if (String(prev).charAt(0) == '$') {
+					buf[bufSz - 1] = buf[bufSz - 1] + '=' + args[i + 1];
+					i++;
+					continue;
+				}
+			} else {
+				if (j) {
+					buf.push(j);
+					bufSz++;
+				}
+			}
+		}
+		return buf;
 	},
 	/** @var classInfo {className, classBody, extendsClassName, interfaces:[], template} */
 		
@@ -304,6 +349,7 @@ var ClassParser = {
 				ch = s.charAt(j);
 				if (!~allow.indexOf(ch)) {
 					word = $.trim(word);
+					console.log('word = ' + word);
 					if (word.length) {
 						//console.log(word);
 						if (!this.classInfo.className) {
@@ -332,7 +378,7 @@ var ClassParser = {
 				}
 			}
 
-			if(this.classInfo.className){
+			if(this.classInfo.className) {
 				var start = s.indexOf('{'),
 					end = s.lastIndexOf('}');
 				this.classInfo.classBody = s.substring(start + 1, end);
