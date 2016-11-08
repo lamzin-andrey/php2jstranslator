@@ -44,14 +44,14 @@ var ClassParser = {
 		this.parseBody();
 
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
-		this.translateFunctions();
+		this.translateFunctions(cPhpjs);
 
 		//6.1 поля собрат в конструктор или в отдельную секцию для static класса
 		//конструктор получить в цикле выше. В него при получении добавить спец __PHPJS_CLASS_INITALIZE__
 		//Этот маркер заменить на собранные поля.
 
 		//TODO меняем на 
-		/*s = classParser.build();*/
+		s = this.build();
 		return s;
 	},
 
@@ -344,7 +344,7 @@ var ClassParser = {
 				ch = s.charAt(j);
 				if (!~allow.indexOf(ch)) {
 					word = $.trim(word);
-					console.log('word = ' + word);
+					//console.log('word = ' + word);
 					if (word.length) {
 						//console.log(word);
 						if (!this.classInfo.className) {
@@ -385,8 +385,8 @@ var ClassParser = {
 		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
-		this.restoreFields();//TODO этот
-		var s = this.buildClassDefinion(classInfo);//TODO все слепит И ЭТОТ
+		this.restoreFields();//TODO 
+		var s = '';//this.buildClassDefinion(classInfo);//TODO все слепит
 		return s;
 	},
 	/**
@@ -401,11 +401,12 @@ var ClassParser = {
 	/** @description Проходит по всем элементам cFunctions и меняет body на js код 
 	 *  
 	*/
-	translateFunctions:function() {
+	translateFunctions:function(cPhpJs) {
+		//console.log(cPhpJs);
 		for (var i in this.cFunctions) {
 			var fLines = 'function ' + this.cFunctions[i].name + '(' + 
 				this.joinArgs(i) + ') ' + this.cFunctions[i].body;
-			var translate = cPhpJs.translateFunction(fLines);
+			var translate = cPhpJs.translateFunction(fLines);//TODO второй аргумент с аргументами разбираемой функции и пусть их добавить в тело со значениями по умолчанию.
 			this.setFunctionData(translate, i);//TODO
 		}
 	},
@@ -413,11 +414,23 @@ var ClassParser = {
 	 *
 	**/
 	joinArgs:function(i) {
-		var args = this.cFunctions[i].args, b = [], j;
+		var args = this.cFunctions[i].args, b = [], j, n;
 		for (j = 0; j < args.length; j++) {
-			b.push(args[j][0]);
+			n = args[j][0];
+			if (args[j][1]) {
+				n += ' = ' + args[j][1];
+			}
+			b.push(n);
 		}
 		return b.join(', ');
+	},
+	restoreFields:function() {
+		var s = this.classInfo.classBody;
+		console.log(s);
+		console.log(this.cFields);
+		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
+		//   менять на строку, которая будет переправлена в constructor
+		//   иначе на комментарий вида @property
 	}
 }
 

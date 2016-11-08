@@ -12,7 +12,8 @@ function init() {
 		testParseClassField();
 		testGrabFields();
 		testGrabFunctions();
-		//testTranslateFunctions();
+		testTranslateFunctions();
+		testBuild();
 	}
 }
 //static public $less = "hello";private $p;\n\nstatic\nprivate\n$arr = [0, 1, [0, [1,2,5], 2, "jghjhj"] ]
@@ -93,13 +94,17 @@ function testGrabFields() {
 function testGrabFunctions() {
 	
 	let s = `class CApplication extends CBaseApplication {
+	private $statement = 'full root';
+	public  $chakra;
+
+	protected $innovation;
 	
 	public function __construct() {
 		$this->title(S1, S2);
 		parent::__construct();
 	}
 	
-	protected function _route($url) {
+	protected function _route($url = REF) {
 		$work_folder = WORK_FOLDER;
 		switch ($url) {
 			case $work_folder . SIMPLE:
@@ -314,6 +319,45 @@ function testTranslateFunctions() {
 	subject.grabClassDefine(s);
 	o = subject.classInfo;
 	subject.grabFunctions();
-	//subject.translateFunctions();
-	console.log(subject.cFunctions[0]);
+	subject.translateFunctions(Phpjs);
+	//console.log(subject.cFunctions[1]);
+	let et = `{
+		var $work_folder, $this, $h;
+		$work_folder = WORK_FOLDER;
+		switch ($url) {
+			case $work_folder + SIMPLE:
+				this.layout = PATH;
+				this.handler = $h = this._load(SPH);
+				return;
+			case $work_folder + FLD:
+				this.layout = LAYOPUT;
+				this.handler = $h = this._load(TDFRER);
+				return;
+			case $work_folder + GOOD:
+				this.layout = KDE;
+				this.handler = $h = this._load(EXMPLI);
+				return;
+			case $work_folder + JEI:
+			case $work_folder + EQI:
+				this.layout = LAYOUT;
+				this.handler = $h = this._load(NJSH);
+				return;
+			case $work_folder + NJSL:
+			case $work_folder + FLDR:
+				this.layout = ABCD;
+				this.handler = $h = this._load(NoJSLoginHandler);
+				return;
+		}
+		parent._route($url);
+	}`;
+	expect(subject.cFunctions[1].body, et, 'testTranslateFunctions');
+}
+function testBuild() {
+	var s = phpClassWithPlaceholders;
+	subject.grabClassDefine(s);
+	o = subject.classInfo;
+	subject.grabFunctions();
+	subject.grabFields();
+	subject.translateFunctions(Phpjs);
+	subject.build();
 }
