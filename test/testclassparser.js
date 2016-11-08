@@ -1,6 +1,8 @@
 var subject;
 var line;
 var strPostReplace;
+/** @var  phpClassWithPlaceholders  - текст php класса в котором все строки и комментарии замененны на  плейсхолдеры */
+var phpClassWithPlaceholders;
 $(init);
 
 function init() {
@@ -10,6 +12,7 @@ function init() {
 		testParseClassField();
 		testGrabFields();
 		testGrabFunctions();
+		//testTranslateFunctions();
 	}
 }
 //static public $less = "hello";private $p;\n\nstatic\nprivate\n$arr = [0, 1, [0, [1,2,5], 2, "jghjhj"] ]
@@ -264,9 +267,9 @@ function testGrabFunctions() {
 	}
 
 }`;
+	phpClassWithPlaceholders = s;
 	subject.grabClassDefine(s);
 	o = subject.classInfo;
-	console.log(o);
 	expect(o.className, 'CApplication', 'grabClassDefine');
 	var q = s.replace('class CApplication extends CBaseApplication {', '');
 	q = q.replace(/\}$/g, '');
@@ -302,4 +305,15 @@ function testGrabFunctions() {
 	/*expect(o.varname, '$_class_name', 'parseClassField');
 	expect(String(o.value), 'undefined', 'parseClassField');
 	expect(o.placeholder, subject.pcp + (subject.pcpCounter - 1), 'parseClassField');*/
+}
+/**
+ * 
+*/
+function testTranslateFunctions() {
+	var s = phpClassWithPlaceholders;
+	subject.grabClassDefine(s);
+	o = subject.classInfo;
+	subject.grabFunctions();
+	//subject.translateFunctions();
+	console.log(subject.cFunctions[0]);
 }

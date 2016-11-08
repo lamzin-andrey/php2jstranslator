@@ -41,22 +41,17 @@ var ClassParser = {
 		var classInfo = this.grabClassDefine(s);
 		//console.log(this.classInfo);
 		
-		this.parseBody();//TODO тестировать все используемые функции
+		this.parseBody();
 
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
-		/*for (var i in this.cFunctions) {
-			var fLines = 'function ' + this.cFunctions[i].name + '(' + 
-				this.cFunctions[i].args,join(', ') + ') ' + this.cFunctions[i].body;
-			var translate = cPhpJs.translateFunction(fLines);
-			this.setFunctionData(translate, i);//TODO
-		}
+		this.translateFunctions();
 
 		//6.1 поля собрат в конструктор или в отдельную секцию для static класса
 		//конструктор получить в цикле выше. В него при получении добавить спец __PHPJS_CLASS_INITALIZE__
 		//Этот маркер заменить на собранные поля.
 
 		//TODO меняем на 
-		s = classParser.build();*/
+		/*s = classParser.build();*/
 		return s;
 	},
 
@@ -393,6 +388,36 @@ var ClassParser = {
 		this.restoreFields();//TODO этот
 		var s = this.buildClassDefinion(classInfo);//TODO все слепит И ЭТОТ
 		return s;
+	},
+	/**
+     * @description Устанавливает -ому элементу cFunctions переведенный на js текст body
+     * @param {String} jsFunctionText
+     * @param {Number} index
+	*/
+	setFunctionData:function(jsFunctionText, index) {
+		var data = this.parseFunction(jsFunctionText, 0, 'function');
+		this.cFunctions[index].body = data.body;
+	},
+	/** @description Проходит по всем элементам cFunctions и меняет body на js код 
+	 *  
+	*/
+	translateFunctions:function() {
+		for (var i in this.cFunctions) {
+			var fLines = 'function ' + this.cFunctions[i].name + '(' + 
+				this.joinArgs(i) + ') ' + this.cFunctions[i].body;
+			var translate = cPhpJs.translateFunction(fLines);
+			this.setFunctionData(translate, i);//TODO
+		}
+	},
+	/**
+	 *
+	**/
+	joinArgs:function(i) {
+		var args = this.cFunctions[i].args, b = [], j;
+		for (j = 0; j < args.length; j++) {
+			b.push(args[j][0]);
+		}
+		return b.join(', ');
 	}
 }
 
