@@ -50,7 +50,7 @@ function testParseClassField() {
 	expect(o.raw, s, 'parseClassField');
 	expect(o.placeholder, subject.pcp + (subject.pcpCounter - 1), 'parseClassField');
 
-	s = '\n\nstatic\nprotected\n$arr = [0, 1, [0, [1,2,5], 2, "jghjhj"] ]';
+	s = 'static\nprotected\n$arr = [0, 1, [0, [1,2,5], 2, "jghjhj"] ]';
 	o = subject.parseClassField(s);
 	expect(o.success, true, 'parseClassField');
 	expect(o.isStatic, true, 'parseClassField');
@@ -94,7 +94,7 @@ function testGrabFields() {
 function testGrabFunctions() {
 	
 	let s = `class CApplication extends CBaseApplication {
-	private $statement = 'full root';
+	private $statement = FULERHJGFSDhJ;
 	public  $chakra;
 
 	protected $innovation;
@@ -355,9 +355,19 @@ function testTranslateFunctions() {
 function testBuild() {
 	var s = phpClassWithPlaceholders;
 	subject.grabClassDefine(s);
-	o = subject.classInfo;
+	//o = subject.classInfo;
+
 	subject.grabFunctions();
+
+	//console.log( 'H = ' + subject.classInfo.classBody );
+
 	subject.grabFields();
+
+	//console.log(subject.cFields);
+
+
+	//console.log( 'M = ' + subject.classInfo.classBody );
+
 	subject.translateFunctions(Phpjs);
 	subject.build();
 }

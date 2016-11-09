@@ -74,12 +74,14 @@ var ClassParser = {
 			p = s.indexOf(kw);
 			while (p != -1) {
 				end = s.indexOf(';', p);
-				start = s.lastIndexOf(';', p);
-				if (start == -1 && kw != 'static') {
+				//start = s.lastIndexOf(';', p);
+				if (/*start == -1 && */kw != 'static') {
 					start = s.lastIndexOf('static', p);
 				}
 				if (start == -1) {
 					start = p;
+				} else {
+					//start++;
 				}
 				if (end > start) {
 					data = this.parseClassField(s.substring(start, end + 1));
@@ -104,9 +106,11 @@ var ClassParser = {
      * @return {placeholder, varname, value, visible, isStatic}
 	*/
 	parseClassField:function(s) {
+		s = $.trim(s);
+		//console.log('parseClassField: s = "' + s + '"');
 		var brStart = s.indexOf('['),
 			brEnd = s.lastIndexOf(']'),
-			array, res = {raw:s}, i, word, placeholder;
+			array, res = {raw:$.trim(s)}, i, word, placeholder;
 		placeholder = this.pcp + this.pcpCounter;
 		res.placeholder = placeholder;
 		this.pcpCounter++;
@@ -136,6 +140,7 @@ var ClassParser = {
 				}
 			}
 		}
+		//console.log('parseClassField: RETURN: "' + s + '"');
 		return res;
 	},
 	/** 
@@ -162,6 +167,7 @@ var ClassParser = {
 			if (metadata.success) {
 				placeholder = this.pcp + this.pcpCounter;
 				this.pcpCounter++;
+				//console.log('replace ' + metadata.rawContent + ' ON ' + placeholder);
 				s = s.replace(metadata.rawContent, placeholder);
 				this.cFunctions.push( {
 					placeholder:placeholder,
@@ -201,7 +207,7 @@ var ClassParser = {
 			if (ch == '}') {
 				bCount--;
 				if (start && bCount == 0) {
-					res.closePosition = i;
+					res.closePosition = i + 1;
 				}
 			}
 			if (start) {
@@ -231,7 +237,7 @@ var ClassParser = {
 				}
 			}
 		}
-		var dbg = false;
+		var dbg = false, countVisible = 0;
 		/*if (res.name == '_req') {
 			dbg = true;
 		}*/
@@ -243,6 +249,13 @@ var ClassParser = {
 			for (i = position; i > -1; i--) {
 				ch = s.charAt(i);
 				if (ch == '}' || ch == ';') {
+					startPos = s.indexOf(res.visible, i);
+					if (res.static) {
+						var ts = startPos = s.indexOf('static', i);
+						if (ts < startPos) {
+							startPos = ts;
+						}
+					}
 					break;
 				}
 				if (~allow.indexOf(ch)) {
@@ -254,14 +267,22 @@ var ClassParser = {
 						case 'public':
 						case 'private':
 						case 'protected':
+							countVisible++;
+							if (res.visible) {
+								break;
+							}
 							res.visible = word;
 							break;
 						case 'static':
 							res.static = true;
+							break;
 					}
 				}
-				if (res.static && res.visible) {
+				if ( (res.static && countVisible > 0) || countVisible > 1) {
 					startPos = i;
+					if (countVisible > 1) {
+						startPos = s.indexOf(res.visible, i + 1);
+					}
 				}
 			}
 			res.rawContent = s.substring(startPos, res.closePosition);
@@ -426,8 +447,8 @@ var ClassParser = {
 	},
 	restoreFields:function() {
 		var s = this.classInfo.classBody;
-		console.log(s);
-		console.log(this.cFields);
+		//console.log(s);
+		//console.log(this.cFields);
 		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
