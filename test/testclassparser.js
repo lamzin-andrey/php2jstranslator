@@ -366,7 +366,46 @@ function testBuild() {
 	//console.log(subject.cFields);
 
 
-	//console.log( 'M = ' + subject.classInfo.classBody );
+	//console.log( 'M = "' + subject.classInfo.classBody + '"');
+	let q = `
+	phpjs_f_placeholder_52
+	phpjs_f_placeholder_51
+
+	phpjs_f_placeholder_53
+	
+	phpjs_f_placeholder_37
+	
+	phpjs_f_placeholder_38
+
+	sd
+	phpjs_f_placeholder_39
+	COMM2
+	phpjs_f_placeholder_40
+	
+	COMM1
+	phpjs_f_placeholder_41
+	CISKO
+	phpjs_f_placeholder_42
+	COMM
+	phpjs_f_placeholder_43
+	COMM
+	phpjs_f_placeholder_44
+	COMM
+	phpjs_f_placeholder_45
+	CONNM
+	phpjs_f_placeholder_46
+	COMM
+	phpjs_f_placeholder_47
+	COMM
+	phpjs_f_placeholder_48
+	
+	phpjs_f_placeholder_49
+	
+	public phpjs_f_placeholder_50
+
+`;
+
+	expect(subject.classInfo.classBody, q, 'testBuild');
 
 	subject.translateFunctions(Phpjs);
 	subject.build();
