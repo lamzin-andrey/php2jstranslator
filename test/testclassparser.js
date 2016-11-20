@@ -350,9 +350,13 @@ function testTranslateFunctions() {
 		}
 		parent._route($url);
 	}`;
+	//console.log(subject.cFunctions);
 	expect(subject.cFunctions[1].body, et, 'testTranslateFunctions');
+	//console.log(subject.cFunctions[9].body);
+	//console.log(et);
 }
 function testBuild() {
+	subject.init();
 	var s = phpClassWithPlaceholders;
 	subject.grabClassDefine(s);
 	//o = subject.classInfo;
@@ -368,45 +372,48 @@ function testBuild() {
 
 	//console.log( 'M = "' + subject.classInfo.classBody + '"');
 	let q = `
-	phpjs_f_placeholder_52
-	phpjs_f_placeholder_51
+	phpjs_f_placeholder_15
+	phpjs_f_placeholder_14
 
-	phpjs_f_placeholder_53
+	phpjs_f_placeholder_16
 	
-	phpjs_f_placeholder_37
+	phpjs_f_placeholder_0
 	
-	phpjs_f_placeholder_38
+	phpjs_f_placeholder_1
 
 	sd
-	phpjs_f_placeholder_39
+	phpjs_f_placeholder_2
 	COMM2
-	phpjs_f_placeholder_40
+	phpjs_f_placeholder_3
 	
 	COMM1
-	phpjs_f_placeholder_41
+	phpjs_f_placeholder_4
 	CISKO
-	phpjs_f_placeholder_42
+	phpjs_f_placeholder_5
 	COMM
-	phpjs_f_placeholder_43
+	phpjs_f_placeholder_6
 	COMM
-	phpjs_f_placeholder_44
+	phpjs_f_placeholder_7
 	COMM
-	phpjs_f_placeholder_45
+	phpjs_f_placeholder_8
 	CONNM
-	phpjs_f_placeholder_46
+	phpjs_f_placeholder_9
 	COMM
-	phpjs_f_placeholder_47
+	phpjs_f_placeholder_10
 	COMM
-	phpjs_f_placeholder_48
+	phpjs_f_placeholder_11
 	
-	phpjs_f_placeholder_49
+	phpjs_f_placeholder_12
 	
-	public phpjs_f_placeholder_50
+	public phpjs_f_placeholder_13
 
 `;
-
+	//console.log("|" + subject.classInfo.classBody + "|");
+	//return;
 	expect(subject.classInfo.classBody, q, 'testBuild');
 
 	subject.translateFunctions(Phpjs);
-	subject.build();
+	console.log(subject.cFunctions[9].body);
+	s = subject.build();
+	console.log(s);
 }

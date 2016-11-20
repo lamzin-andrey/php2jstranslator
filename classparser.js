@@ -29,6 +29,20 @@ var ClassParser = {
 	cFields   : [],
 	pcp       : 'phpjs_f_placeholder_',
 	pcpCounter : 0,
+	/** @property {Array} constructorFragment собирает поля класса в этот массив, чтобы поместить потом этот фрагмент в текст вункции конструктора **/
+	constructorFragment : [],
+	/** @property {Boolean}  buildAsStaticObject  если true то собирает класс как объект без возможности наследования */
+	buildAsStaticObject : false,
+
+	init:function(objectType) {
+		this.cFunctions = [];
+		this.cFields = [];
+		this.pcpCounter = 0;
+		this.constructorFragment = [];
+		if (objectType == 1) {
+			buildAsStaticObject = true;
+		}
+	},
 
 	/** Парсит определение одного php класса */
 	parse:function(sClassPhp, cPhpjs) {
@@ -407,7 +421,7 @@ var ClassParser = {
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
 		this.restoreFields();//TODO 
-		var s = '';//this.buildClassDefinion(classInfo);//TODO все слепит
+		var s = this.buildClassDefinion();
 		return s;
 	},
 	/**
@@ -446,12 +460,118 @@ var ClassParser = {
 		return b.join(', ');
 	},
 	restoreFields:function() {
-		var s = this.classInfo.classBody;
-		//console.log(s);
-		//console.log(this.cFields);
+		var s = this.classInfo.classBody, i, j, iValue, dValue, sValue, divider = '=', token = ';', expr;
+		/*if (this.buildAsStaticObject = false) {
+			divider = '=';
+			token = ';';
+		}*/
+
+		for(i = 0; i < this.cFields.length; i++) {
+			j = this.cFields[i];
+			if (j.value) {
+				sValue = String(j.value);
+				iValue = parseInt(sValue, 10);
+				dValue = parseFloat(sValue);
+				if (String(iValue) === sValue) {
+					j.value = iValue;
+				} else if (String(dValue) === sValue) {
+					j.value = dValue;
+				} else {
+					j.value = sValue;
+				}
+				ex = '\t/** @property ' + j.varname + ' */\n' + '\tthis.' + j.varname + ' ' + divider + ' ' + j.value + token;
+				s = s.replace(j.placeholder, '');
+			} else {
+				ex = '\t/** @property ' + j.varname + ' */';
+				s = s.replace(j.placeholder, '');
+			}
+			this.constructorFragment.push(ex);
+		}
+
+		/*console.log(s);
+		console.log(this.cFields);
+		console.log(this.constructorFragment);*/
+
 		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
+	},
+	/**
+	 *
+	**/
+	buildClassDefinion:function() {
+		var i, j, constructorFragment = this.constructorFragment.join('\n'), extendConstructorBody = '',
+			openClassPart = '', closeClassPart = '};', sArgs, body = [], F, token = ',', s;
+		//1 Если тип класса не статик, строим функцию конструктор.
+		//2 В засисимости от типа класса стоим открывающий и закрывающий код определения класса
+		//static:
+		//var ClassName = {
+		//};
+
+		//extendSupport
+		//ClassName.prototype = {
+
+		//};
+		if (this.buildAsStaticObject == false) {
+			extendConstructorBody = 'function ' + this.classInfo.className + '(ARGUMENTS) {\nCONSTRUCTOR_FRAGMENT\n}\n';
+			openClassPart = this.classInfo.className + '.prototype = {\n';
+		} else {
+			openClassPart = 'var ' + this.classInfo.className + ' = {\n';
+		}
+		//3 Проходим по функциям и добавляем их в тело.
+		//  Встретив __construct 
+		//    Если static
+		//      constructorFragment добавляем перед первой функцией
+		//    Иначе 
+		//      тело функции добавляем в код конструктора из первого пункта.
+		for (i = 0; i < this.cFunctions.length; i++) {
+			j = this.cFunctions[i];
+			sArgs = this._prepareArgsForBuild(j.args);
+			/**
+			 * @property cFunctions {Array} массив хеш функйий
+			 * Элемент: {placeholder:String, name:String, args:[], body:String}
+			 * placeholder - ключ, на который заменена функция в исходном коде
+			 * name - имя функции
+			 * args - массив аргументов функции 
+			 *        Элемент: String
+			 * body - текст функции от открывающей { до закрывающей }
+			 * visible - string private, protected or public
+			 * isStatic  - true
+			*/
+			if (j.name == '__construct') {
+				if (this.buildAsStaticObject) {
+					j.body = j.body.replace('{', '{\n\t\t' + constructorFragment + '\n');
+				} else {
+					s = j.body.replace('{', '');
+					s = s.replace(/\}$/m, '');
+					extendConstructorBody = extendConstructorBody.replace('CONSTRUCTOR_FRAGMENT', '\n' + constructorFragment + "\n" + s);
+					extendConstructorBody = extendConstructorBody.replace('ARGUMENTS', sArgs);
+					continue;
+				}
+			}
+			if (i == this.cFunctions.length - 1) {
+				token = '\n';
+			}
+			F = '\t' + j.name + ' : function(' + sArgs + ') ' + j.body + token;
+			body.push(F);
+		}
+		return extendConstructorBody + openClassPart + body.join('\n') + closeClassPart;
+	},
+	/**
+     * @description  Соединить аргументы для публикации в js функции (то есть берем только имена аргументов)
+	*/
+	_prepareArgsForBuild:function(args) {
+		var s = '', i, j, b = [];
+		if (!window.AAA) {
+			window.AAA = 1;
+			console.log(args);
+		}
+		for (i = 0; i < args.length; i++) {
+			j = args[i];
+			b.push(j[0]);
+		}
+		s = b.join(', ');
+		return s;
 	}
 }
 

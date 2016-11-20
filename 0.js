@@ -82,6 +82,7 @@ var Phpjs = {
 		//2 скопировать стеки f в стеки c
 		this.copyFunctionsStackToClassStack();
 		//TODO заменить на 
+		ClassParser.init();
 		s = ClassParser.parse(s, this);//TODO
 		
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
@@ -89,7 +90,6 @@ var Phpjs = {
 		this.copyClassStackToFunctionsStack();
 		this.replaceNewLines();
 		s = this.restorePlaceholders(s);
-		
 		return s;
 		//return this.translateFunction(lines);
 	},
