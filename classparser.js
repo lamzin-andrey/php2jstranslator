@@ -2,7 +2,10 @@
  * @class Обрабатывает код PHP класса
 */
 var ClassParser = {	
-	/** @property classInfo {className, classBody, extendsClassName, interfaces:[], template} */
+	/** @property classInfo {className, classBody, extendsClassName, interfaces:[], template, outerPlaceholders} 
+	 * outerPlaceholders - элементы, начинающиеся с Phpjs.pcp и встречающиеся до слова class
+	*/
+
 	/**
 	 * @property cFunctions {Array} массив хеш функйий
 	 * Элемент: {placeholder:String, name:String, args:[], body:String}
@@ -40,13 +43,14 @@ var ClassParser = {
 		this.pcpCounter = 0;
 		this.constructorFragment = [];
 		if (objectType == 1) {
-			buildAsStaticObject = true;
+			this.buildAsStaticObject = true;
 		}
 	},
 
 	/** Парсит определение одного php класса */
 	parse:function(sClassPhp, cPhpjs) {
 		var s = sClassPhp;
+		this.cPhpjs = cPhpjs;
 		
 		//3 распарсить код класса, заполнить стек функций элементами имя тело аргументы
 		// 3.1 class Foo extends Bar { ... } вырезаем, оставляем только ...
@@ -412,6 +416,7 @@ var ClassParser = {
 				var start = s.indexOf('{'),
 					end = s.lastIndexOf('}');
 				this.classInfo.classBody = s.substring(start + 1, end);
+				this.classInfo.outerPlaceholders = this.parseClassOuterPlaceholders(s);
 			}
 		}
 	},
@@ -486,6 +491,7 @@ var ClassParser = {
 				s = s.replace(j.placeholder, '');
 			}
 			this.constructorFragment.push(ex);
+			this.classInfo.classBody = s;
 		}
 
 		/*console.log(s);
@@ -501,7 +507,10 @@ var ClassParser = {
 	**/
 	buildClassDefinion:function() {
 		var i, j, constructorFragment = this.constructorFragment.join('\n'), extendConstructorBody = '',
-			openClassPart = '', closeClassPart = '};', sArgs, body = [], F, token = ',', s;
+			openClassPart = '', closeClassPart = '};', sArgs, body = [], F, token = ',', s,
+			sBody = this.classInfo.classBody;
+		var tab = '    ';
+		
 		//1 Если тип класса не статик, строим функцию конструктор.
 		//2 В засисимости от типа класса стоим открывающий и закрывающий код определения класса
 		//static:
@@ -525,7 +534,7 @@ var ClassParser = {
 		//    Иначе 
 		//      тело функции добавляем в код конструктора из первого пункта.
 		for (i = 0; i < this.cFunctions.length; i++) {
-			j = this.cFunctions[i];
+			j     = this.cFunctions[i];
 			sArgs = this._prepareArgsForBuild(j.args);
 			/**
 			 * @property cFunctions {Array} массив хеш функйий
@@ -540,38 +549,77 @@ var ClassParser = {
 			*/
 			if (j.name == '__construct') {
 				if (this.buildAsStaticObject) {
-					j.body = j.body.replace('{', '{\n\t\t' + constructorFragment + '\n');
+					j.body = j.body.replace('{', '{\n' + tab + tab + constructorFragment + '\n');
 				} else {
 					s = j.body.replace('{', '');
 					s = s.replace(/\}$/m, '');
 					extendConstructorBody = extendConstructorBody.replace('CONSTRUCTOR_FRAGMENT', '\n' + constructorFragment + "\n" + s);
 					extendConstructorBody = extendConstructorBody.replace('ARGUMENTS', sArgs);
+					sBody = sBody.replace(j.placeholder, '');
 					continue;
 				}
 			}
 			if (i == this.cFunctions.length - 1) {
 				token = '\n';
 			}
-			F = '\t' + j.name + ' : function(' + sArgs + ') ' + j.body + token;
-			body.push(F);
+			j.body = this.formatter(j.body, 2, tab);//TODO
+			F = tab + j.name + ' : function(' + sArgs + ') ' + j.body + token;
+			sBody = sBody.replace(j.placeholder, F);
+			//body.push(F);
 		}
-		return extendConstructorBody + openClassPart + body.join('\n') + closeClassPart;
+		var res = this.classInfo.outerPlaceholders + '\n' + extendConstructorBody + openClassPart + sBody + closeClassPart;
+		//console.log(res);
+		return res;
 	},
 	/**
      * @description  Соединить аргументы для публикации в js функции (то есть берем только имена аргументов)
 	*/
 	_prepareArgsForBuild:function(args) {
 		var s = '', i, j, b = [];
-		if (!window.AAA) {
-			window.AAA = 1;
-			console.log(args);
-		}
 		for (i = 0; i < args.length; i++) {
 			j = args[i];
 			b.push(j[0]);
 		}
 		s = b.join(', ');
 		return s;
+	},
+	/**
+	 *
+	*/
+	formatter:function(s, count, tab) {
+		var a = s.split('\n'), i, q, j, lines = [], c = count;
+		for (i = 0; i < a.length; i++) {
+			q = $.trim(a[i]);
+			if (i > 0) {
+				if (i == a.length - 1) {
+					c--;
+					if (c < 0) {
+						c = 0;
+					}
+				}
+				for (j = 0; j < c; j++) {
+					q = tab + q;
+				}
+			}
+			lines.push(q);
+		}
+		return lines.join('\n');
+	},
+	/**
+	 * @description
+	*/
+	parseClassOuterPlaceholders:function(s) {
+		var q = s.substring(0, s.indexOf('class')),
+			a = q.split(/\s+/mig), i, word, r = [];
+		for (i = 0; i < a.length; i++) {
+			word = a[i];
+			if (~word.indexOf(this.cPhpjs.pcp)) {
+				r.push(word);
+			}
+		}
+		r = r.join('\n');
+		//console.log(r);
+		return r;
 	}
 }
 

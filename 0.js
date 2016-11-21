@@ -79,17 +79,20 @@ var Phpjs = {
 		this.clearClassStack();
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
 		var s = this.grabClassCommentAndString(lines);
+		//console.log(s);
 		//2 скопировать стеки f в стеки c
 		this.copyFunctionsStackToClassStack();
+		
 		//TODO заменить на 
-		ClassParser.init();
+		ClassParser.init(Library._GET('objType', 0));
 		s = ClassParser.parse(s, this);//TODO
 		
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
 		this.clearFunctionStack();
 		this.copyClassStackToFunctionsStack();
 		this.replaceNewLines();
-		s = this.restorePlaceholders(s);
+		//console.log(this.cComments);
+		s = this.restorePlaceholders(s, true);
 		return s;
 		//return this.translateFunction(lines);
 	},
@@ -301,12 +304,16 @@ var Phpjs = {
 	 * @description Восстанавливает в исходном коде строки и комментарии, ранее замененные на плейсхолдеры
 	 * @param {String } s текст js функции
 	*/
-	restorePlaceholders:function(s) {
+	restorePlaceholders:function(s, dbg) {
 		var i, L = this.fStrings.length;
 		for (i = 0; i < L; i++) {
 			s = s.replace(this.fStrings[i].k, this.fStrings[i].v);
 		}
 		L = this.fComments.length;
+		if(dbg){
+			//console.log(s);
+			//console.log(this.fComments);
+		}
 		for (i = 0; i < L; i++) {
 			s = s.replace(this.fComments[i].k, this.fComments[i].v);
 		}
@@ -351,7 +358,7 @@ var Phpjs = {
 			}
 			closeB = i;
 			frag = s.substring(openB, closeB + 1);
-			console.log(frag);
+			//console.log(frag);
 			//console.log(frag);
 			repl = frag.replace(/=>/gi, ':');
 			repl = repl.replace(/\[/gi, '{');
