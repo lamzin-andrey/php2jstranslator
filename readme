@@ -55,3 +55,18 @@ Replace 'foreach ($array as $key => $item) {' to 'for ($key in $array) { $item =
 Replace 'foreach ($array as $item) {' to 'for (i100500 in $array) { $item = $array[i100500];'.
 
 File php.js containts some analogs of php functions and will appear new.
+
+
+
+//TODO
+
+либо добавить поддержку array() в парсинге, либо бросать Исключение, что не надо так писать.
+
+
+Если в классе нет конструктора, то не выводить 
+
+function CPdfCreator(ARGUMENTS) {
+	CONSTRUCTOR_FRAGMENT
+}
+
+с const что-то сделать, несмотря на ES6

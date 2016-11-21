@@ -80,6 +80,7 @@ var Phpjs = {
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
 		var s = this.grabClassCommentAndString(lines);
 		//console.log(s);
+		//return;
 		//2 скопировать стеки f в стеки c
 		this.copyFunctionsStackToClassStack();
 		
@@ -325,6 +326,7 @@ var Phpjs = {
 	*/
 	assocArray2Object:function(s) {
 		var source = s, prevP = null;
+		//console.log(s);
 		while(~s.indexOf('=>')) {
 			var p, openB = null, closeB = null, i, frag, repl,
 				p = s.indexOf('=>'), brCounter, ch;
@@ -405,7 +407,7 @@ var Phpjs = {
 		if (state.ignore) {
 			var append = 0;
 			if (state.sQuoteIsOpen) {
-				if (ch == "'" && s.charAt(i - 1) != '\\') {
+				if (ch == "'" && !this.previousSymbolIsSlash(s, i)) {//s.charAt(i - 1) != '\\'
 					state.ignoreBlockContent += ch;
 					append = 1;
 					state.sQuoteIsOpen = state.ignore = false;
@@ -413,7 +415,7 @@ var Phpjs = {
 				}
 			}
 			if (state.dQuoteIsOpen) {
-				if (ch == '"' && s.charAt(i - 1) != '\\') {
+				if (ch == '"' && this.previousSymbolIsSlash(s, i)) {
 					state.ignoreBlockContent += ch;
 					append = 1;
 					state.dQuoteIsOpen = state.ignore = false;
@@ -503,6 +505,7 @@ var Phpjs = {
 			ch = s.charAt(i);
 			state = this.isIgnoreBlockStart(ch, s, i, state);
 			if (!state.ignore) {
+				//console.log('LastIgnoreBlock = ' + state.ignoreBlockContent);
 				this.addLastIgnoreBlockToStack(state);
 				if (ch == '$') {
 					inVar = true;
@@ -653,6 +656,20 @@ var Phpjs = {
 		//this.placeholderN = 0;
 		this.locvarCounter = 0;
 	},
-	
+	/**
+	 * @param {String} s
+	 * @param {Number} i
+	 * @return {Boolean} true если символу i строки s предшествует символ '\'
+	*/
+	previousSymbolIsSlash:function(s, i) {
+		var prev = s.charAt(i - 1), pp = s.charAt(i - 2);
+		if (prev == '\\' && pp == '\\') {
+			return false;
+		}
+		if (prev == '\\') {
+			return true;
+		}
+		return false;
+	}
 };
 
