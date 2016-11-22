@@ -1,4 +1,7 @@
 function count(data) {
+	if (!data) {
+		return 0;
+	}
 	if (data instanceof Array || isset(data.length)) {
 		return data.length;
 	}
@@ -175,11 +178,40 @@ function array_values(v) {
 	return r;
 }
 
-
+function array_keys(arr){
+	var r = [];
+	if (v instanceof Array) {
+		for (var i = 0; i < v.length; i++) {
+			if (v[i]) {
+				r.push(i);
+			}
+		}
+	} else if (v instanceof Object) {
+		for (var i in v) {
+			r.push(i);
+		}
+	}
+	return r;
+}
 
 function strtolower(s) {
 	return s.toLowerCase();
 }
+
+function max(arr) {
+	if (arr instanceof Array) {
+		return Math.max.apply(Math, arr);
+	}
+	return Math.max.apply(Math, arguments);
+}
+
+function min(arr) {
+	if (arr instanceof Array) {
+		return Math.min.apply(Math, arr);
+	}
+	return Math.min.apply(Math, arguments);
+}
+
 function mb_strtolower(s) {
 	return s.toLowerCase();
 }
@@ -195,6 +227,52 @@ function mb_strpos(s, substr) {
 		return false;
 	}
 	return i;
+}
+
+function session_start() {}
+
+function dirname() {
+	if (Qt && Qt.appDir) {
+		return Qt.appDir();
+	}
+	return '/';
+}
+
+function file_exists(filename) {
+	if (PHP && PHP.file_exists) {
+		return PHP.file_exists(filename);
+	}
+	return false;
+}
+
+function str_replace(search, replace, subject, oCount) {
+	while (subject.indexOf(search) != -1) {
+		subject = subject.replace(search, replace);
+		if (oCount && (oCount instanceof Object)) {
+			if (!oCount.v) {
+				oCount.v = 0;
+			}
+			oCount.v++;
+		}
+	}
+	return subject;
+}
+
+function date(pattern){
+	var dt = new Date(), map = {
+		Y : dt.getFullYear(),
+		m : dt.getMonth() + 1,
+		d : dt.getDate(),
+		H : dt.getHours(),
+		i : dt.getMinutes(),
+		s : dt.getSeconds()
+	};
+	var key;
+	for (key in map) {
+		map[key] = +map[key] < 10 ? ('0' + map[key]) : map[key];
+		pattern = str_replace(key, map[key], pattern);
+	}
+	return pattern;
 }
 
 

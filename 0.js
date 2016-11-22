@@ -76,6 +76,16 @@ var Phpjs = {
 	 * @description временно вызывает translateFunction то есть пока можно транслировать одну функцию
 	*/
 	translate:function(lines) {
+		var data = {}, s;
+		if (!this.isValidPhp(lines, data)) {
+			s = 'Строка ' + data.line + ', символ ' + data.position + ': ';
+			if (data.message) {
+				alert(s + data.message);
+			} else {
+				alert(s + 'Недопустимое вхождение ' + data.word);
+			}
+			return lines;
+		}
 		this.clearClassStack();
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
 		var s = this.grabClassCommentAndString(lines);
@@ -670,6 +680,39 @@ var Phpjs = {
 			return true;
 		}
 		return false;
+	},
+	/**
+	 * @description 
+	 * @param {Object} info {line, position, word, message}
+	 * @return {Boolean} true если код валидный
+	*/
+	isValidPhp:function(lines, info) {
+		info.line = 0;
+		info.position = 0;
+		info.word = '';
+		info.message = '';
+		var words = ['array('], i, j, s, a, start;
+		for (i = 0; i < words.length; i++) {
+			s = words[i];
+			start = lines.indexOf(s);
+			if (~start) {
+				s = lines.substring(0, start + words[i].length);
+				a = s.split('\n');
+				info.line = a.length;
+				s = a[a.length - 1];
+				info.position = s.indexOf(words[i]);
+				if (!~info.position) {
+					s = a[a.length - 2];
+					info.position = s.indexOf(words[i]);
+				}
+				if (words[i] == 'array(') {
+					info.message = 'Недопустимое объявление массива array(), используйте []';
+				}
+				info.word = words[i];
+				return false;
+			}
+		}
+		return true;
 	}
 };
 
