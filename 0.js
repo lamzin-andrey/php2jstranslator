@@ -119,6 +119,7 @@ var Phpjs = {
 		//1 собрать все переменные внутри функции.
 		//все 'foreach ($arr as $item) {' заменить на 'for (foritN in $arr) {$item = $arr[foritN];' где N число
 		s = this.grabCommentsStringsVars(s, i);
+		console.log(s);return s;
 		//все строки содержащие в себе {$var} или  $var разбить, заменить все подстроки на плейсхолдеры, результат на конкатенацию плейсхолдеров, исходный плейсхолдер в коде заменить на этот результат
 		s = StringProcessor.replace(s);
 		//переносы строк заменить на сложение
@@ -144,6 +145,9 @@ var Phpjs = {
 		s = s.replace(/new\s+\\StdClass/gm, '{}');
 		//TODO $arr[] = some; -> $arr.push(some);
 		s = this.arrayPush(s);
+		//
+
+		s = this.setIssetExpression(s);
 		//инициализацию ассоциативных массивов  на инициализацию объектов
 		s = this.assocArray2Object(s);
 		//плейсхолдеры - на место
@@ -515,7 +519,7 @@ var Phpjs = {
 			ch = s.charAt(i);
 			state = this.isIgnoreBlockStart(ch, s, i, state);
 			if (!state.ignore) {
-				//console.log('LastIgnoreBlock = ' + state.ignoreBlockContent);
+				console.log('LastIgnoreBlock = ' + state.ignoreBlockContent);
 				this.addLastIgnoreBlockToStack(state);
 				if (ch == '$') {
 					inVar = true;
@@ -544,6 +548,7 @@ var Phpjs = {
 				inForeach = false;
 			}
 		}
+		console.log(this.fStrings);
 		//заменить все строки  и комментарии на плейсхолдеры
 		return this.setPlaceholders(s);
 	},
@@ -713,6 +718,92 @@ var Phpjs = {
 			}
 		}
 		return true;
+	},
+	setIssetExpression:function(s) {
+		var i, j, s, a, start, p, q, aParts = [], newIsset, oldIsset, buf = [], BREAK = 0;
+		start = s.indexOf('isset');
+		while (~start) {
+				q = this.getCloseIssetExpression(s, start, aParts);
+				buf = [];
+				for (j = 0; j < aParts.length; j++) {
+					if ($.trim(aParts[j]).length) {
+						buf.push( $.trim(aParts[j]) );
+					}
+				}
+				aParts = buf;
+
+			p = q.length ? start + q.length : start + 1;
+			if (q.length) {
+				oldIsset = s.substring(start, p);
+				newIsset = 'isset(' + aParts.join(', ') + ')';
+				if (oldIsset != newIsset) {
+					while (~s.indexOf(oldIsset)) {
+						s = s.replace(oldIsset, newIsset);
+					}
+				}
+			}
+			start = s.indexOf('isset', p);
+			aParts = [];
+			/*BREAK++;
+			if (BREAK > 500) {
+				break;
+			}*/
+		}
+		return s;
+	},
+	/**
+	 * @description  собирает "звенья" ->[][]->[]  и оборачивает их в кавычки при необходимости
+	 * в массив args
+	 * @return фрагмент кода вида 'isset(....)'
+	*/
+	getCloseIssetExpression:function(s, start, args) {
+		var i = start, cBr = 0, ch, started = false;
+		for (i = start; i < s.length; i++) {
+			ch = s.charAt(i);
+			if (ch == '(') {
+				started = true;
+				cBr++;
+			}
+			if (ch == ')') {
+				cBr--;
+			}
+			if (started) {
+				this.addIssetExpressionArgument(ch, args, s.charAt(i + 1));
+			}
+			if (started && cBr == 0) {
+				return s.substring(start, i + 1);
+			}
+		}
+		return '';
+	},
+	/** @description  собирает "звенья" ->[][]->[]  и оборачивает их в кавычки при необходимости
+	 * @see getCloseIssetExpression
+	 * @return {Array}
+	*/
+	addIssetExpressionArgument:function(ch, args, nextChar) {
+		//args.push('T');return;
+
+		var s = args.length > 0 ? args[args.length - 1] : '',
+		   idx = args.length > 0 ? args.length - 1 : -1;
+		if (idx == -1) {
+			args.push('');
+			idx = 0;
+		}
+		if (ch != '[' && ch != ']' && ch != '-'  && nextChar != '>' && ch != ')' && ch != '(' && ch != '.') {
+			s += ch;
+			args[idx] = s;
+		} else if(s.length){
+			s = s.replace(/\s/gm, '');
+			if (s.length) {
+				if (s.indexOf(this.pcp) !== 0 && args.length != 1) {
+					console.log('Append ' + s);
+					s = '"' + s + '"';
+					s = this.addPlaceHolder('string', this.fStrings, s);
+				}
+				args[args.length - 1] = s;
+				args.push('');
+			}
+		}
 	}
 };
 
