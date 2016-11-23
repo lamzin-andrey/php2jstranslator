@@ -9,8 +9,17 @@ function count(data) {
 	for (i in data) c++;
 	return c;
 }
-function isset(v, d) {
-	return !(String(v) === 'undefined');
+function isset(v) {
+	if (String(v) === 'undefined') {
+		return !(String(v) === 'undefined');
+	}
+	for (var i = 1; i < arguments.length; i++) {
+		v = v[ arguments[i] ];
+		if (!isset(v)) {
+			return false;
+		}
+	}
+	return true;
 }
 function explode(ch, str) {
 	return str.split(ch);
