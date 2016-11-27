@@ -58,19 +58,12 @@ File php.js containts some analogs of php functions and will appear new.
 
 
 
-//TODO
 
-Парсер isset
-Меняет 
-isset($o->a[0]['u'])
-на 
-isset($o, "a", "0", 'u')
-
-код isset переписать под это дело.
+Из списка переменных  удалять $this, $_SESSION, $_POST, $_GET, $_SERVER
 
 все Exception менять на Error
 
-Из списка переменных  удалять $this, $_SESSION, $_POST, $_GET, $_SERVER
+
 
 const парсить как поле класса.
 

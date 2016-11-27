@@ -587,9 +587,10 @@ var ClassParser = {
 	 *
 	*/
 	formatter:function(s, count, tab) {
-		var a = s.split('\n'), i, q, j, lines = [], c = count;
+		var a = s.split('\n'), i, q, j, lines = [], c = count, lTab = tab, f = 0;
 		for (i = 0; i < a.length; i++) {
 			q = $.trim(a[i]);
+			
 			if (i > 0) {
 				if (i == a.length - 1) {
 					c--;
@@ -597,8 +598,27 @@ var ClassParser = {
 						c = 0;
 					}
 				}
+				if (q == '}') {
+					//var x = lTab.lastIndexOf(tab);
+					//lTab = lTab.substring(0, x);
+					c--;
+					f = 1;
+				}
 				for (j = 0; j < c; j++) {
-					q = tab + q;
+					q = lTab + q;
+				}
+				if (q.indexOf('{') != -1) {
+					//lTab += tab;
+					c++;
+				}
+				if (q.indexOf('}') != -1 && f != 1) {
+					//var x = lTab.lastIndexOf(tab);
+					//lTab = lTab.substring(0, x);
+					c--;
+				} else if (f == 1) {
+					f = 0;
+					//lTab += tab;
+					//c++;
 				}
 			}
 			lines.push(q);

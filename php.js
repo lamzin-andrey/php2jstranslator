@@ -238,6 +238,33 @@ function mb_strpos(s, substr) {
 	return i;
 }
 
+function rand(min, max) {
+	var n = Math.random(), sN = String(n), sMin = String(min),
+	    sMax = String(max), s;
+	while (true) {
+		sN = sN.replace('.', '');
+		sN = sN.replace(/^0+/, '');
+		if (sN.length >= sMin.length) {
+			sN = sN.substring(0, sMin.length + 1);
+			break;
+		}
+		n = Math.random();
+		sN = String(n);
+	}
+	n = parseInt(sN, 10);
+	if (n < min) {
+		n += min;
+	}
+	if (n > max) {
+		n = n % max;
+	}
+	if (n < min) {
+		n += min;
+	}
+	return n;
+}
+
+
 function session_start() {}
 
 function dirname() {

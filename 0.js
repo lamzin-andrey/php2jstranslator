@@ -167,7 +167,14 @@ var Phpjs = {
 	*/
 	addVarDefine:function(s) {
 		var i, L = this.fVars.length, p = s.indexOf('{'), map = {}, buf = [],
-			r = '', head, tail, fail = 0, offset = '';
+			r = '', head, tail, fail = 0, offset = '',
+			globals = {
+				'$_POST':1,
+				'$_GET':1,
+				'$_SERVER':1,
+				'$_SESSION':1,
+				'$this':1
+			};
 		i = p + 1;	
 		//отступ получить
 		while (s.charAt(i) == ' ' || s.charAt(i) == '\t' || s.charAt(i) == '\n') {
@@ -183,7 +190,7 @@ var Phpjs = {
 		}
 		map = this.getArgumentsList(s);
 		for (i = 0; i < L; i++) {
-			if ( !map[ this.fVars[i] ] ) {
+			if ( !map[ this.fVars[i] ] && !globals[ this.fVars[i] ]) {
 				map[ this.fVars[i] ] = 1;
 				buf.push( this.fVars[i] );
 			}
@@ -698,7 +705,7 @@ var Phpjs = {
 		for (i = 0; i < words.length; i++) {
 			s = words[i];
 			start = lines.indexOf(s);
-			if (~start) {
+			if (~start && lines.charAt(start - 1) != '_') {
 				s = lines.substring(0, start + words[i].length);
 				a = s.split('\n');
 				info.line = a.length;
@@ -793,7 +800,7 @@ var Phpjs = {
 		} else if(s.length){
 			s = s.replace(/\s/gm, '');
 			if (s.length) {
-				if (s.indexOf(this.pcp) !== 0 && args.length != 1) {
+				if (s.indexOf(this.pcp) !== 0 && s.indexOf('$') !== 0 && args.length != 1) {
 					s = '"' + s + '"';
 					s = this.addPlaceHolder('string', this.fStrings, s);
 					//console.log('Append ' + s);
