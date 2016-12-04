@@ -1,3 +1,7 @@
+$_POST = {};
+function chr(n) {
+	return String.fromCharCode(n);
+}
 function count(data) {
 	if (!data) {
 		return 0;
@@ -8,6 +12,15 @@ function count(data) {
 	var i, c;
 	for (i in data) c++;
 	return c;
+}
+function define(name, val) {
+	window[name] = val;
+}
+function defined(name) {
+	if (window[name]) {
+		return true;
+	}
+	return false;
 }
 function isset(v) {
 	if (String(v) === 'undefined') {
@@ -20,6 +33,9 @@ function isset(v) {
 		}
 	}
 	return true;
+}
+function get_defined_vars() {
+	return window;
 }
 function explode(ch, str) {
 	return str.split(ch);
@@ -64,6 +80,10 @@ function object_chunk(data, size, safeKeys) {
 		r.push(buf);
 	}
 	return r;
+}
+
+function ord(s) {
+	return String(s).charCodeAt(0);
 }
 
 function _array_chunk(data, size) {
@@ -114,8 +134,53 @@ function array_fill_keys(arr, value) {
 	}
 	return res;
 }
+function in_array(needle, subject, strict) {
+	var i, j, r;
+	if (typeof(subject) == 'array') {
+		for (i = 0; i < subject.length; i++) {
+			j = subject[i];
+			r = (j == needle);
+			if (strict) {
+				r = (j === needle);
+			}
+			if (r) {
+				return true;
+			}
+		}
+	} else if (typeof(subject) == 'object') {
+		for (i in subject) {
+			j = subject[i];
+			r = (j == needle);
+			if (strict) {
+				r = (j === needle);
+			}
+			if (r) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 function intval(i) {
 	return parseInt(i);
+}
+function is_array(s) {
+	if (s instanceof Array) {
+		return true;
+	}
+	if (typeof(s) == 'array') {
+		return true;
+	}
+	return false;
+}
+function is_string(s) {
+	if (s instanceof String) {
+		return true;
+	}
+	if (typeof(s) == 'string') {
+		return true;
+	}
+	return false;
 }
 function trim(s) {
 	return $.trim(s);
@@ -126,7 +191,13 @@ function strval(s) {
 function strlen(s) {
 	return s.length;
 }
-
+function substr(s, start, length) {
+	if (length) {
+		return s.substring(start, start + length);
+	} else {
+		return s.substring(start);
+	}
+}
 
 function empty(v) {
 	if (!v) {
@@ -142,6 +213,19 @@ function empty(v) {
 function array() {
 	return [];
 }
+
+function round(float, per) {
+	if (!per) {
+		return Math.round(float);
+	}
+	var n = 1, i;
+	for (var i = 0; i < per; i++) {
+		n *= 10;
+	}
+	return Math.round(float * n) / n;
+
+}
+
 function sizeof(n){
 	if (n && n.length) {
 		return n.length;
@@ -154,6 +238,89 @@ function sizeof(n){
 		return sz;
 	}
 	return null;
+}
+function sprintf() {
+	var format = arguments[0], argIdx = 1, i, j, ch, buf = '', q, sym;
+	//console.log(arguments);
+	
+	var locs = '';
+	for (var loc = 0; loc < arguments.length; loc++) {
+		locs += arguments[loc] + ',';
+	}
+	console.log(locs);
+	
+	if (typeof(format) == 'array') {
+		throw new Error('Sprintf got array');
+	}
+	while (true) {
+		i = format.indexOf('%');
+		if (~i) {
+			buf = '';
+			for (j = i; j < format.length; j++) {
+				ch = format.charAt(j);
+				if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == ')' || ch == '('|| ch == ']' || ch == '[') {
+					break;
+				}
+				buf += ch;
+			}
+			var re = /%\.[0-9]+F/, num,
+				re2 = /%[0-9]+d/;
+			if (buf != '%.d' && re.test(buf)) {
+				ch = buf.replace('%.', '');
+				num = parseInt(ch, 10);
+				ch = arguments[argIdx];
+				argIdx++;
+				if (!isNaN(parseFloat(ch))) {
+					ch = String(round(ch, num));
+					if (ch.indexOf('.') == -1) {
+						ch += '.';
+					}
+					q = ch.substring(ch.indexOf('.'));
+
+					while(q.length < num + 1) {
+						q += '0';
+						ch += '0';
+					}
+					format = format.replace(buf, ch);
+				}
+			} else if (buf != '%.d' && re2.test(buf)) {
+				ch = buf.replace('%', '');
+				sym = (String(ch).charAt(0) == '0') ? '0' : ' ';
+				num = parseInt(ch, 10);
+				ch = arguments[argIdx];
+				argIdx++;
+				q = '';
+				if (!isNaN(num)) {
+					for (j = 3; j < num; j++) {
+						q += sym;
+					}
+				}
+				q += String(ch);
+				format = format.replace(buf, q);
+			} else if (buf == '%.d') {
+				ch = arguments[argIdx];
+				argIdx++;
+				format = format.replace(buf, parseInt(ch, 10));
+			} else if (buf == '%d') {
+				ch = arguments[argIdx];
+				argIdx++;
+				format = format.replace(buf, ch);
+			} else if (buf == '%s') {
+				ch = arguments[argIdx];
+				argIdx++;
+				format = format.replace(buf, ch);
+			}
+			else {
+				console.log('buf = ' + buf);
+				format = format.replace(buf, 'nAn');
+				throw new Error("sprintf: unable process |" + format + '|');
+			}
+		} else {
+			break;
+		}
+	}
+	console.log('return |' + format + '|');
+	return format;
 }
 function pathinfo(path) {
 	var a = path.split('/'),
@@ -204,7 +371,90 @@ function array_keys(arr){
 }
 
 function strtolower(s) {
-	return s.toLowerCase();
+	if (String(s) == 'undefined')
+		throw new Error('strtolower: s is undefined');
+	return String(s).toLowerCase();
+}
+function strpos(s, needle, offset) {
+	offset = parseInt(offset) ? parseInt(offset) : 0;
+	var n = s.indexOf(needle, offset);
+	if (n == -1) {
+		return false;
+	}
+	return n;
+}
+/**
+ * @description this private helper for define strrpos();
+*/
+function _strrpos(s, needle, offset) {
+	offset = parseInt(offset) ? parseInt(offset) : s.length;
+	if (offset < 0) {
+		s = s.substring(0, s.length + offset + 1);
+		return strrpos(s, needle);
+	} else {
+		offset = s.length;
+	}
+	var n = s.lastIndexOf(needle, offset);
+	if (n == -1) {
+		return false;
+	}
+	return n;
+}
+/**
+ * @testing
+ * Test values from
+ * PHP 5.5.9 (cli) (built: Feb 12 2014 22:09:05) 
+	Copyright (c) 1997-2014 The PHP Group
+	Zend Engine v2.5.0, Copyright (c) 1998-2014 Zend Technologies
+		with Xdebug v2.2.3, Copyright (c) 2002-2013, by Derick Rethans
+		* 
+ * Test code:
+	var $s = 'abrrrerf';
+	
+	var values = {'-9': false, '-8':false, '-7': false, '-6':2, '-5':3,'-4':4, '-3':4,
+	 '-2':6,'-1':6, '0':6, '1':6,
+		2:6, 3:6, 4:6, 5:6, 6:6, 7:false, 8:false, 9:false
+	};
+
+   $('#console').html('');	
+	for (var i = -9; i < 10; i++) {
+		var m = strrpos($s, 'r', i);
+		if (m === values[i]) {
+			writeln('on i == ' + i + ' m = ' + m + ', expected = ' + values[i] + ', success');
+		} else {
+			writeln('<span style="color:#ff0000;">on i == ' + i + ' m = ' + m + ', expected = ' + values[i] + ', FAIL</span>');
+		}
+	}
+	$s = '/media/andrey/C/dev/v3-r9/default/php/PdfCreator/fpdf17/0.png';
+	m = strrpos($s, '.');
+	if (m === 57) {
+		writeln('on i == ' + i + ' m = ' + m + ', expected = ' + 57 + ', success');
+	} else {
+		writeln('<span style="color:#ff0000;">on i == ' + i + ' m = ' + m + ', expected = ' + 57 + ', FAIL</span>');
+	}
+ */	
+function strrpos(s, needle, offset) {
+	var sourceOffset = offset;
+	offset = parseInt(offset) ? parseInt(offset) : s.length;
+	if (offset < 0) {
+		s = s.substring(0, s.length + offset + 1);
+		//writeln('call _strrpos');
+		return _strrpos(s, needle);
+	} else {
+		if (offset >= s.length - 1 && sourceOffset !== 0 && String(sourceOffset) !== 'undefined') {
+			//writeln('return false here!');
+			return false;
+		}
+		offset = s.length;
+	}
+	var n = s.lastIndexOf(needle, offset);
+	if (n == -1) {
+		return false;
+	}
+	return n;
+}
+function strtoupper(s) {
+	return s.toUpperCase();
 }
 
 function max(arr) {
@@ -213,7 +463,12 @@ function max(arr) {
 	}
 	return Math.max.apply(Math, arguments);
 }
-
+function method_exists(obj, foo) {
+	if (obj[foo] instanceof Function) {
+		return true;
+	}
+	return false;
+}
 function min(arr) {
 	if (arr instanceof Array) {
 		return Math.min.apply(Math, arr);

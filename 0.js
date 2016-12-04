@@ -345,7 +345,7 @@ var Phpjs = {
 	 * @param {String } s текст php функции
 	*/
 	assocArray2Object:function(s) {
-		var source = s, prevP = null;
+		var source = s, prevP = null, bre = 0;
 		//console.log(s);
 		while(~s.indexOf('=>')) {
 			var p, openB = null, closeB = null, i, frag, repl,
@@ -374,7 +374,8 @@ var Phpjs = {
 				if (ch == ']') {
 					brCounter--;
 				}
-				if (String(ch) == 'undefined') {
+				//console.log( String(ch) );
+				if (String(ch) == 'undefined' || String(ch) == "") {
 					return source;
 				}
 			}
