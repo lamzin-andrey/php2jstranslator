@@ -57,15 +57,55 @@ Replace 'foreach ($array as $item) {' to 'for (i100500 in $array) { $item = $arr
 File php.js containts some analogs of php functions and will appear new.
 
 
+========================================================================
+isset сделать учитывающим вложенные сложные выражения
 
+var ; удалить
+
+Для аргуменов с значениями по умолчанию генерить строки
+arg0 = String(arg0) === 'undefined' ? value : arg0;
+
+this.arr[] = n; не обрабатывается.
+
+$v = [];//{} не всегда обрабатывается.
 
 Из списка переменных  удалять $this, $_SESSION, $_POST, $_GET, $_SERVER
 
 все Exception менять на Error
 
 
+const добавить как.
+ClassName.CONST_NAME = value;
 
-const парсить как поле класса.
+//=======BOF================
+переменные передаваемые как ссылки обрабатывать, это целое дело.
+Перед вызовом функции f($m, $k)
+если $m $k в описании функции принимаются как ссылки:
+objectLink$m = {v:$m};
+objectLink$k = {v:$k};
+
+в аргументах функции f
+все аргументы & менять на objectLink$varname
+
+внутри функции в начало добавлять 
+$varname = objectLink$varname.v;
+внутри функции в конец добавлять
+objectLink$varname.v = $varname;
+//=======EOF================
+
+self в коде менять на ClassName
+
+static функции собирать как ClassName.functionName = function(){};
+
+Сборку класса заменить на 
+ClassName.prototype.functionName = function() {}
+это нужно для более простой поддержки наследования.
+
+Добавить замену extends на extend(); из букваря
+
+parent::function();
+заменять на 
+this.superclass.constructor.call(this, arguments);
 
 
 Если в классе нет конструктора, то не выводить 

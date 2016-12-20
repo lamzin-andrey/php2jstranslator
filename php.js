@@ -1,17 +1,22 @@
 $_POST = {};
+$_SERVER = {};
+$_SESSION = {};
 function chr(n) {
 	return String.fromCharCode(n);
 }
-function count(data) {
+function count(data, dbg) {
 	if (!data) {
 		return 0;
 	}
-	if (data instanceof Array || isset(data.length)) {
+	if (data instanceof Array /*|| isset(data.length)*/) {
 		return data.length;
 	}
-	var i, c;
+	var i, c = 0;
 	for (i in data) c++;
 	return c;
+}
+function dechex(n) {
+	 return Number(n).toString(16);
 }
 function define(name, val) {
 	window[name] = val;
@@ -23,19 +28,43 @@ function defined(name) {
 	return false;
 }
 function isset(v) {
+	var dbg = window.issetdbg;
+	if (dbg) {
+		console.log('arguments:');
+		console.log(arguments);
+	}
 	if (String(v) === 'undefined') {
+		if (dbg) {
+			//window.issetdbg = 0;
+		}
 		return !(String(v) === 'undefined');
 	}
 	for (var i = 1; i < arguments.length; i++) {
+		if (dbg) {
+			console.log('check key = ' + arguments[i]);
+		}
 		v = v[ arguments[i] ];
 		if (!isset(v)) {
+			if (dbg) {
+				//window.issetdbg = 0;
+			}
 			return false;
 		}
+	}
+	if (dbg) {
+		//window.issetdbg = 0;
 	}
 	return true;
 }
 function get_defined_vars() {
 	return window;
+}
+function getimagesize($path) {
+	if (PHP && PHP.getimagesize) {
+		var r = PHP.getimagesize($path);
+		return r;
+	}
+	return {};
 }
 function explode(ch, str) {
 	return str.split(ch);
@@ -118,6 +147,38 @@ function array_map(F, arr) {
 	}
 	return arr;
 }
+function array_merge(arr) {
+	var i, j, sub, k, b;
+	if (arr instanceof Array) {
+		for (i = 1; i < arguments.length; i++) {
+			sub = arguments[i];
+			if (sub instanceof Object) {
+				b = {};
+				for (j = 0; j < arr.length; j++) {
+					b[String[j]] = arr[j];
+				}
+				arr = b;
+				break;
+			}
+		}
+	}
+	for (i = 1; i < arguments.length; i++) {
+		sub = arguments[i];
+		if (!(sub instanceof Array) && !(sub instanceof Object)) {
+			continue;
+		}
+		if (sub instanceof Array) {
+			for (j = 0; j < sub.length; j++) {
+				arr[j] = sub[j];
+			}
+		} else if (sub instanceof Object) {
+			for (j  in sub) {
+				arr[j] = sub[j];
+			}
+		}
+	}
+	return arr;
+}
 function array_search(s, arr) {
 	var r = false;
 	$(arr).each(function(i, j) {
@@ -133,6 +194,13 @@ function array_fill_keys(arr, value) {
 		res[arr[i]] = value;
 	}
 	return res;
+}
+function hexdec(n) {
+	var r =  parseInt(n, 16);
+	if (isNaN(r)) {
+		throw new Error('n = ' + n);
+	}
+	return r;
 }
 function in_array(needle, subject, strict) {
 	var i, j, r;
@@ -162,7 +230,8 @@ function in_array(needle, subject, strict) {
 	return false;
 }
 function intval(i) {
-	return parseInt(i);
+	var r = parseInt(i, 10);
+	return isNaN(r) ? 0 : r;
 }
 function is_array(s) {
 	if (s instanceof Array) {
@@ -197,6 +266,9 @@ function substr(s, start, length) {
 	} else {
 		return s.substring(start);
 	}
+}
+function sqrt(a) {
+	return Math.sqrt(a);
 }
 
 function empty(v) {
@@ -245,9 +317,12 @@ function sprintf() {
 	
 	var locs = '';
 	for (var loc = 0; loc < arguments.length; loc++) {
+		if (String(arguments[loc]) == 'NaN') {
+			throw new Error('sprintf got NaN!');
+		}
 		locs += arguments[loc] + ',';
 	}
-	console.log(locs);
+	//console.log(locs);
 	
 	if (typeof(format) == 'array') {
 		throw new Error('Sprintf got array');
@@ -319,7 +394,7 @@ function sprintf() {
 			break;
 		}
 	}
-	console.log('return |' + format + '|');
+	//console.log('return |' + format + '|');
 	return format;
 }
 function pathinfo(path) {
@@ -534,6 +609,13 @@ function file_exists(filename) {
 		return PHP.file_exists(filename);
 	}
 	return false;
+}
+
+function file_get_contents($file) {
+	if (PHP && PHP.file_get_contents) {
+		return PHP.file_get_contents($file);
+	}
+	return '';
 }
 
 function str_replace(search, replace, subject, oCount) {
