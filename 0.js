@@ -196,6 +196,10 @@ var Phpjs = {
 			}
 		}
 		r = 'var ' + buf.join(', ') + ';' + offset;
+		if (buf.length == 0) {
+			r = '';
+			p--;
+		}
 		head = s.substring(0, p);
 		tail = s.substring(p + 1);
 		s = head + r + tail;
@@ -276,7 +280,13 @@ var Phpjs = {
 		}
 		for (i = pos - 1; i > -1; i--) {
 			aVar.push(s.charAt(i));
-			if (s.charAt(i) == '$') {
+			if (s.charAt(i) == '$' || 
+				((s.charAt(i) == 't')
+				&& (s.charAt(i + 1) == 'h')
+				&& (s.charAt(i + 2) == 'i')
+				&& (s.charAt(i + 3) == 's')
+				&& (s.charAt(i + 4) == '.'))
+					) {
 				fragStart = i;
 				break;
 			}
@@ -306,7 +316,14 @@ var Phpjs = {
 			if (s.charAt(i) == '=') {
 				return false;
 			}
-			if (s.charAt(i) == '$') {
+			
+			if (s.charAt(i) == '$' || 
+				((s.charAt(i) == 't')
+				&& (s.charAt(i + 1) == 'h')
+				&& (s.charAt(i + 2) == 'i')
+				&& (s.charAt(i + 3) == 's')
+				&& (s.charAt(i + 4) == '.'))
+					) {
 				return true;
 			}
 			if (s.charAt(i) == '\n' && !buksEntry) {
@@ -763,7 +780,7 @@ var Phpjs = {
 	 * @return фрагмент кода вида 'isset(....)'
 	*/
 	getCloseIssetExpression:function(s, start, args) {
-		var i = start, cBr = 0, ch, started = false;
+		var i = start, cBr = 0, ch, started = false, cQBr = 0;
 		for (i = start; i < s.length; i++) {
 			ch = s.charAt(i);
 			if (ch == '(') {
@@ -773,8 +790,16 @@ var Phpjs = {
 			if (ch == ')') {
 				cBr--;
 			}
+			
+			if (ch == '[') {
+				cQBr++;
+			}
+			
 			if (started) {
-				this.addIssetExpressionArgument(ch, args, s.charAt(i + 1));
+				this.addIssetExpressionArgument(ch, args, s.charAt(i + 1), (cQBr > 1), cQBr );
+			}
+			if (ch == ']') {
+				cQBr--;
 			}
 			if (started && cBr == 0) {
 				return s.substring(start, i + 1);
@@ -783,10 +808,12 @@ var Phpjs = {
 		return '';
 	},
 	/** @description  собирает "звенья" ->[][]->[]  и оборачивает их в кавычки при необходимости
-	 * @see getCloseIssetExpression
+	 * @params @see getCloseIssetExpression
+	 * @param  {Boolean} append - если true то ch безоговорочно добавляется к текущему аргументу
+	 * @param  {Number} countQBrackets - уровень вложенности в []
 	 * @return {Array}
 	*/
-	addIssetExpressionArgument:function(ch, args, nextChar) {
+	addIssetExpressionArgument:function(ch, args, nextChar, append, countQBrackets) {
 		//args.push('T');return;
 
 		var s = args.length > 0 ? args[args.length - 1] : '',
@@ -795,7 +822,14 @@ var Phpjs = {
 			args.push('');
 			idx = 0;
 		}
-		if (ch != '[' && ch != ']' && ch != '-'  && nextChar != '>' && ch != ')' && ch != '(' && ch != '.') {
+		
+		if (!append && countQBrackets == 1) {
+			if (ch == '-' || ch == '>' || ch == '.') {
+				append = true;
+			}
+		}
+		
+		if (append ||  (ch != '[' && ch != ']' && ch != '-'  && nextChar != '>' && ch != ')' && ch != '(' && ch != '.')) {
 			s += ch;
 			args[idx] = s;
 		} else if(s.length){

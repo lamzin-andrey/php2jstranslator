@@ -58,14 +58,11 @@ File php.js containts some analogs of php functions and will appear new.
 
 
 ========================================================================
-isset сделать учитывающим вложенные сложные выражения
-
-var ; удалить
 
 Для аргуменов с значениями по умолчанию генерить строки
-arg0 = String(arg0) === 'undefined' ? value : arg0;
+arg0 = String(arg0) === 'undefined' ? value : arg0;	*
 
-this.arr[] = n; не обрабатывается.
+
 
 $v = [];//{} не всегда обрабатывается.
 

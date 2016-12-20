@@ -259,6 +259,10 @@ var ClassParser = {
 		/*if (res.name == '_req') {
 			dbg = true;
 		}*/
+		var defaultArgsFragment = this.createDefaultArgsFragment(args);
+		//console.log('GET ' + defaultArgsFragment);
+		//body = defaultArgsFragment + body;
+		body = body.replace('{', '{\n' + defaultArgsFragment);
 		args = this.normalizeArgs(args, dbg);//TODO удаляет значения по умолчанию и типы данных
 		if (res.closePosition) {
 			res.body = body;
@@ -640,6 +644,25 @@ var ClassParser = {
 		r = r.join('\n');
 		//console.log(r);
 		return r;
+	},
+	/**
+	 * @description Создаёт строку вида arg0 = String(arg0) === 'undefined' ? value : arg0; для аргументов фукнкции со значениями по умолчанию.
+	*/
+	createDefaultArgsFragment:function(args) {
+		//console.log(args);
+		var aBuf = [], s, i, j, k = 0;
+		for (i = 0; i < args.length; i++) {
+			if (args[i + 1] == '='  && args[i + 2].charAt(0) != '$' && args[i].charAt(0) == '$') {
+				//console.log('args[i] = ' + args[i]);
+				aBuf.push('\t\t' + args[i] + " = String(" + args[i]  +  ") == 'undefined' ? " + args[i + 2] + " : " +  args[i] + ";");
+				k++;
+			}
+		}
+		if (k > 0) {
+			//console.log('WTF ' + (aBuf.join("\n") + "\n") );
+			return (aBuf.join("\n") + "\n");
+		}
+		return "";
 	}
 }
 
