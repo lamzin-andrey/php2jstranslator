@@ -581,7 +581,7 @@ var ClassParser = {
 			}
 			j.body = this.formatter(j.body, 2, tab);//TODO
 			var prefixClassMethod = this.classInfo.className + '.prototype.'
-			
+			//console.log(this.classInfo);
 			if (this.buildAsStaticObject || j.isStatic) {
 				prefixClassMethod = this.classInfo.className + '.'
 			}
@@ -590,6 +590,9 @@ var ClassParser = {
 			//body.push(F);
 		}
 		var res = this.classInfo.outerPlaceholders + '\n' + extendConstructorBody + openClassPart + sBody + closeClassPart;
+		if (this.classInfo.extendsClassName) {
+			this.constantsFragment.push('extend(' + this.classInfo.extendsClassName + ', ' + this.classInfo.className + ');');
+		}
 		res = this.constantsFragment.join('\n') + '\n' + res;
 		//console.log(res);
 		return res;

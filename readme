@@ -58,11 +58,6 @@ File php.js containts some analogs of php functions and will appear new.
 
 
 ========================================================================
-
-
-static функции собирать как ClassName.functionName = function(){};
-
-
 Добавить замену extends на extend(); из букваря
 
 parent::function();
