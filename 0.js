@@ -88,6 +88,8 @@ var Phpjs = {
 		}
 		this.placeholderN = 0;
 		this.clearClassStack();
+		//заменить все [];//{} на {};
+		lines = lines.replace(/\[\];\/\/\{\}/gim, '{};');
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
 		var s = this.grabClassCommentAndString(lines);
 		//console.log(s);
@@ -113,8 +115,7 @@ var Phpjs = {
 	*/
 	translateFunction:function(lines) {
 		var i, s = lines;
-		//-5 заменить все [];//{} на {};
-		s = s.replace('[];//{}', '{};');
+		
 		this.clearFunctionStack();
 		//0 пройти по функции и собрать все комментарии и строки в массивы, вместо них оставить макрос phpjs_placeholder_comment|string_N
 		//1 собрать все переменные внутри функции.
