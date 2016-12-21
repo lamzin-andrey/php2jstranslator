@@ -58,9 +58,6 @@ File php.js containts some analogs of php functions and will appear new.
 
 
 ========================================================================
-Сборку класса заменить на ClassName.prototype.functionName = function() {}
-это нужно для более простой поддержки наследования.
-
 
 const добавить как.
 ClassName.CONST_NAME = value;

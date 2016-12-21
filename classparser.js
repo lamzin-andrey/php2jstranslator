@@ -32,8 +32,10 @@ var ClassParser = {
 	cFields   : [],
 	pcp       : 'phpjs_f_placeholder_',
 	pcpCounter : 0,
-	/** @property {Array} constructorFragment собирает поля класса в этот массив, чтобы поместить потом этот фрагмент в текст вункции конструктора **/
+	/** @property {Array} constructorFragment собирает поля класса в этот массив, чтобы поместить потом этот фрагмент в текст функции конструктора **/
 	constructorFragment : [],
+	/** @property {Array} constantsFragment собирает константы класса в этот массив, чтобы определить из потом в синтаксисе js **/
+	constantsFragment : [],
 	/** @property {Boolean}  buildAsStaticObject  если true то собирает класс как объект без возможности наследования */
 	buildAsStaticObject : false,
 
@@ -42,6 +44,7 @@ var ClassParser = {
 		this.cFields = [];
 		this.pcpCounter = 0;
 		this.constructorFragment = [];
+		this.constantsFragment = [];
 		if (objectType == 1) {
 			this.buildAsStaticObject = true;
 		}
@@ -58,16 +61,12 @@ var ClassParser = {
 		//здесь template - это наша s, в которой ... заменен на placeholder_class_body
 		var classInfo = this.grabClassDefine(s);
 		//console.log(this.classInfo);
-		
 		this.parseBody();
-
 		//6 Пройти по стеку функций, каждое тело отдавать translateFunction(lines)
 		this.translateFunctions(cPhpjs);
-
 		//6.1 поля собрат в конструктор или в отдельную секцию для static класса
 		//конструктор получить в цикле выше. В него при получении добавить спец __PHPJS_CLASS_INITALIZE__
 		//Этот маркер заменить на собранные поля.
-
 		//TODO меняем на 
 		s = this.build();
 		return s;
@@ -83,7 +82,7 @@ var ClassParser = {
 	*/
 	grabFields:function() {
 		var s = this.classInfo.classBody,
-			keywords = ['public', 'private', 'protected', 'static'],
+			keywords = ['public', 'private', 'protected', 'static', 'const'],
 			metadata = {},
 			placeholder,
 			i, kw, p = 0, start, end, data;
@@ -116,16 +115,16 @@ var ClassParser = {
 				}
 			}
 		}
+		//console.log(this.cFields);
 		this.classInfo.classBody = s;
 	},
 	/** 
      * @description Собирает поля класса в массив cFields
      * @param {String} s - строка определяющая поле класса, например `static public $arr = [1,2,3];`
-     * @return {placeholder, varname, value, visible, isStatic}
+     * @return {placeholder, varname, value, visible, isStatic, isConst}
 	*/
 	parseClassField:function(s) {
 		s = $.trim(s);
-		//console.log('parseClassField: s = "' + s + '"');
 		var brStart = s.indexOf('['),
 			brEnd = s.lastIndexOf(']'),
 			array, res = {raw:$.trim(s)}, i, word, placeholder;
@@ -148,7 +147,12 @@ var ClassParser = {
 					res.isStatic = true;
 				} else if (word == 'private' || word == 'public' || word == 'protected') {
 					res.visible = word;
-				} else if (word.charAt(0) == '$') {
+				} else if (word == 'const') {
+					res.isConst = true;
+				}else if (word.charAt(0) == '$') {
+					res.varname = word;
+					res.success = true;
+				} else if (res.isConst && word.charAt(0) != '=' && !res.varname) {
 					res.varname = word;
 					res.success = true;
 				} else if (word.charAt(0) == '=') {
@@ -469,7 +473,7 @@ var ClassParser = {
 		return b.join(', ');
 	},
 	restoreFields:function() {
-		var s = this.classInfo.classBody, i, j, iValue, dValue, sValue, divider = '=', token = ';', expr;
+		var s = this.classInfo.classBody, i, j, iValue, dValue, sValue, divider = '=', token = ';', expr, ex;
 		/*if (this.buildAsStaticObject = false) {
 			divider = '=';
 			token = ';';
@@ -477,6 +481,7 @@ var ClassParser = {
 
 		for(i = 0; i < this.cFields.length; i++) {
 			j = this.cFields[i];
+			
 			if (j.value) {
 				sValue = String(j.value);
 				iValue = parseInt(sValue, 10);
@@ -488,13 +493,21 @@ var ClassParser = {
 				} else {
 					j.value = sValue;
 				}
-				ex = '\t/** @property ' + j.varname + ' */\n' + '\tthis.' + j.varname + ' ' + divider + ' ' + j.value + token;
+				if (!j.isConst) {
+					ex = '/** @property ' + j.varname + ' */\n' + '\tthis.' + j.varname + ' ' + divider + ' ' + j.value + token;
+				} else {
+					ex = '/** @const ' + j.varname + ' */\n' +  this.classInfo.className +  '.' + j.varname + ' ' + divider + ' ' + j.value + token;
+				}
 				s = s.replace(j.placeholder, '');
 			} else {
-				ex = '\t/** @property ' + j.varname + ' */';
+				ex = '/** @property ' + j.varname + ' */';
 				s = s.replace(j.placeholder, '');
 			}
-			this.constructorFragment.push(ex);
+			if (!j.isConst) {
+				this.constructorFragment.push(ex);
+			} else {
+				this.constantsFragment.push(ex);
+			}
 			this.classInfo.classBody = s;
 		}
 
@@ -576,6 +589,7 @@ var ClassParser = {
 			//body.push(F);
 		}
 		var res = this.classInfo.outerPlaceholders + '\n' + extendConstructorBody + openClassPart + sBody + closeClassPart;
+		res = this.constantsFragment.join('\n') + '\n' + res;
 		//console.log(res);
 		return res;
 	},
