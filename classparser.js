@@ -581,7 +581,8 @@ var ClassParser = {
 			}
 			j.body = this.formatter(j.body, 2, tab);//TODO
 			var prefixClassMethod = this.classInfo.className + '.prototype.'
-			if (this.buildAsStaticObject) {
+			
+			if (this.buildAsStaticObject || j.isStatic) {
 				prefixClassMethod = this.classInfo.className + '.'
 			}
 			F = prefixClassMethod + j.name + ' = function(' + sArgs + ') ' + j.body + token;
