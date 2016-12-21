@@ -59,10 +59,6 @@ File php.js containts some analogs of php functions and will appear new.
 
 ========================================================================
 
-
-
-Из списка переменных  удалять $this, $_SESSION, $_POST, $_GET, $_SERVER
-
 все Exception менять на Error
 
 

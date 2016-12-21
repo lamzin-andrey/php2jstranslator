@@ -156,6 +156,7 @@ var Phpjs = {
 		s = this.addVarDefine(s);
 		//удалить типы ат=ругментов функций
 		s = this.removeTypesFromArgumentsList(s);
+		s = s.replace(/Exception/gm, 'Error');
 		/*console.log(this.fStrings);
 		console.log(this.fComments);*/
 		//console.log(this.fVars);
