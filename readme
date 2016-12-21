@@ -57,12 +57,20 @@ Replace 'foreach ($array as $item) {' to 'for (i100500 in $array) { $item = $arr
 File php.js containts some analogs of php functions and will appear new.
 
 
-========================================================================
-Добавить замену extends на extend(); из букваря
+Для наследования используйте функцию
 
-parent::function();
-заменять на 
-this.superclass.constructor.call(this, arguments);
+function extend(a,b){
+	var c=new Function();
+	c.prototype=a.prototype;
+	b.prototype=new c();
+	b.prototype.constructor=b;
+	b.superclass=a.prototype;
+	b.superclass.__construct = a;
+}
+
+========================================================================
+parent::function(); заменять на  {className}.superclass.{methodName}.apply(this, arguments)
+Только не arguments а придется таки весь список параметров копировать
 
 
 Если в классе нет конструктора, то не выводить 

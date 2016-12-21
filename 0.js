@@ -136,6 +136,8 @@ var Phpjs = {
 		s = s.replace(/\$this\->/mg, 'this.');
 		//2 заменить все self:: на this.
 		s = s.replace(/self\:\:/mg, className + '.');
+		//2 заменить все parent:: на {className}.superclass.{methodName}.apply(this, arguments)
+		//s = s.replace(/parent\:\:/mg, className + '.');
 		//2 заменить все :: на .
 		s = s.replace(/\:\:/mg, '.');
 		//3 заменить все -> на .
