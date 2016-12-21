@@ -454,7 +454,7 @@ var ClassParser = {
 		for (var i in this.cFunctions) {
 			var fLines = 'function ' + this.cFunctions[i].name + '(' + 
 				this.joinArgs(i) + ') ' + this.cFunctions[i].body;
-			var translate = cPhpJs.translateFunction(fLines);//TODO второй аргумент с аргументами разбираемой функции и пусть их добавить в тело со значениями по умолчанию.
+			var translate = cPhpJs.translateFunction(fLines, this.classInfo.className);//TODO второй аргумент с аргументами разбираемой функции и пусть их добавить в тело со значениями по умолчанию.
 			this.setFunctionData(translate, i);//TODO
 		}
 	},

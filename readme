@@ -59,26 +59,6 @@ File php.js containts some analogs of php functions and will appear new.
 
 ========================================================================
 
-const добавить как.
-ClassName.CONST_NAME = value;
-
-//=======BOF================
-переменные передаваемые как ссылки обрабатывать, это целое дело.
-Перед вызовом функции f($m, $k)
-если $m $k в описании функции принимаются как ссылки:
-objectLink$m = {v:$m};
-objectLink$k = {v:$k};
-
-в аргументах функции f
-все аргументы & менять на objectLink$varname
-
-внутри функции в начало добавлять 
-$varname = objectLink$varname.v;
-внутри функции в конец добавлять
-objectLink$varname.v = $varname;
-//=======EOF================
-
-self в коде менять на ClassName
 
 static функции собирать как ClassName.functionName = function(){};
 
@@ -96,4 +76,20 @@ function CPdfCreator(ARGUMENTS) {
 	CONSTRUCTOR_FRAGMENT
 }
 
-с const что-то сделать, несмотря на ES6
+
+//=======BOF================
+переменные передаваемые как ссылки обрабатывать, это целое дело.
+Перед вызовом функции f($m, $k)
+если $m $k в описании функции принимаются как ссылки:
+objectLink$m = {v:$m};
+objectLink$k = {v:$k};
+
+в аргументах функции f
+все аргументы & менять на objectLink$varname
+
+внутри функции в начало добавлять 
+$varname = objectLink$varname.v;
+внутри функции в конец добавлять
+objectLink$varname.v = $varname;
+//=======EOF================
+

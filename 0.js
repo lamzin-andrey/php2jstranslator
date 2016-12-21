@@ -112,10 +112,12 @@ var Phpjs = {
 	},
 	/**
 	 * @description транслирует код php функции в код js функции
+	 * @param lines код функции
+	 * @param className это значение (className.) будет подставлено вместо self::
 	*/
-	translateFunction:function(lines) {
+	translateFunction:function(lines, className) {
 		var i, s = lines;
-		
+		className = String(className) == 'undefined' ? 'this' : className;
 		this.clearFunctionStack();
 		//0 пройти по функции и собрать все комментарии и строки в массивы, вместо них оставить макрос phpjs_placeholder_comment|string_N
 		//1 собрать все переменные внутри функции.
@@ -133,7 +135,7 @@ var Phpjs = {
 		//2 заменить все $this-> на this.
 		s = s.replace(/\$this\->/mg, 'this.');
 		//2 заменить все self:: на this.
-		s = s.replace(/self\:\:/mg, 'this.');
+		s = s.replace(/self\:\:/mg, className + '.');
 		//2 заменить все :: на .
 		s = s.replace(/\:\:/mg, '.');
 		//3 заменить все -> на .
