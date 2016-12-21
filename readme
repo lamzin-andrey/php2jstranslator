@@ -58,8 +58,8 @@ File php.js containts some analogs of php functions and will appear new.
 
 
 ========================================================================
-
-все Exception менять на Error
+Сборку класса заменить на ClassName.prototype.functionName = function() {}
+это нужно для более простой поддержки наследования.
 
 
 const добавить как.
@@ -85,9 +85,6 @@ self в коде менять на ClassName
 
 static функции собирать как ClassName.functionName = function(){};
 
-Сборку класса заменить на 
-ClassName.prototype.functionName = function() {}
-это нужно для более простой поддержки наследования.
 
 Добавить замену extends на extend(); из букваря
 

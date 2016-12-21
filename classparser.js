@@ -511,7 +511,7 @@ var ClassParser = {
 	**/
 	buildClassDefinion:function() {
 		var i, j, constructorFragment = this.constructorFragment.join('\n'), extendConstructorBody = '',
-			openClassPart = '', closeClassPart = '};', sArgs, body = [], F, token = ',', s,
+			openClassPart = '', closeClassPart = '', sArgs, body = [], F, token = '\n', s,
 			sBody = this.classInfo.classBody;
 		var tab = '    ';
 		
@@ -527,9 +527,9 @@ var ClassParser = {
 		//};
 		if (this.buildAsStaticObject == false) {
 			extendConstructorBody = 'function ' + this.classInfo.className + '(ARGUMENTS) {\nCONSTRUCTOR_FRAGMENT\n}\n';
-			openClassPart = this.classInfo.className + '.prototype = {\n';
+			openClassPart = '';//this.classInfo.className + '.prototype = {\n';
 		} else {
-			openClassPart = 'var ' + this.classInfo.className + ' = {\n';
+			openClassPart = '';//'var ' + this.classInfo.className + ' = {\n';
 		}
 		//3 Проходим по функциям и добавляем их в тело.
 		//  Встретив __construct 
@@ -567,7 +567,11 @@ var ClassParser = {
 				token = '\n';
 			}
 			j.body = this.formatter(j.body, 2, tab);//TODO
-			F = tab + j.name + ' : function(' + sArgs + ') ' + j.body + token;
+			var prefixClassMethod = this.classInfo.className + '.prototype.'
+			if (this.buildAsStaticObject) {
+				prefixClassMethod = this.classInfo.className + '.'
+			}
+			F = prefixClassMethod + j.name + ' = function(' + sArgs + ') ' + j.body + token;
 			sBody = sBody.replace(j.placeholder, F);
 			//body.push(F);
 		}
