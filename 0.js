@@ -137,6 +137,7 @@ var Phpjs = {
 		//2 заменить все self:: на this.
 		s = s.replace(/self\:\:/mg, className + '.');
 		//2 заменить все parent:: на {className}.superclass.{methodName}.apply(this, arguments)
+		s = this.replaceParentLexema(className, s);
 		//s = s.replace(/parent\:\:/mg, className + '.');
 		//2 заменить все :: на .
 		s = s.replace(/\:\:/mg, '.');
@@ -850,6 +851,37 @@ var Phpjs = {
 				args.push('');
 			}
 		}
+	},
+	/**
+	 * @description Заменяет все вхождения parent::foo(bar); в исходный код  на className.superclass.foo.call(this, bar);
+	*/
+	replaceParentLexema:function(className, s) {
+		var start, end, i, j, q, head, tail;
+		start = s.indexOf('parent');
+		while (~start) {
+			end = s.indexOf(';', start);
+			if (end > start) {
+				q = this._replaceOneParentFragment(className, s.substring(start, end));
+				head = s.substring(0, start);
+				tail = s.substring(end);
+				s = head + q + tail;
+			}
+			start = s.indexOf('parent');
+		}
+		return s;
+	},
+	/**
+	 * @description Заменяет все вхождения parent::foo(bar); в исходный код  на className.superclass.foo.call(this, bar);
+	*/
+	_replaceOneParentFragment:function(className, s) {
+		s = s.replace(/parent\s*\:\:\s*/, '');
+		s = s.replace(/parent\s+\.\s+/, '');
+		var a = s.split('('), t = ', ';
+		if ($.trim(a[1]).charAt(0) == ')') {
+			t = '';
+		}
+		s = className + '.superclass.' + a[0] + '.call(this' + t + a[1];
+		return s;
 	}
 };
 
