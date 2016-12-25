@@ -1,6 +1,7 @@
 $_POST = {};
 $_SERVER = {};
 $_SESSION = {};
+function StdClass() {}
 function chr(n) {
 	return String.fromCharCode(n);
 }
