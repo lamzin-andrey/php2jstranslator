@@ -104,7 +104,12 @@ var Phpjs = {
 		//9 Восстановить из c стеков комментарии и плейсхолдеры
 		this.clearFunctionStack();
 		this.copyClassStackToFunctionsStack();
+		
+		//все строки содержащие в себе {$var} или  $var разбить, заменить все подстроки на плейсхолдеры, результат на конкатенацию плейсхолдеров, исходный плейсхолдер в коде заменить на этот результат
+		s = StringProcessor.replace(s, ' + ');
 		this.replaceNewLines();
+		
+		
 		//console.log(this.cComments);
 		s = this.restorePlaceholders(s, true);
 		return s;

@@ -211,7 +211,7 @@ var ClassParser = {
 	/**
 	 * @return {name, body, args:[], closePosition, rawContent}
 	*/
-	parseFunction:function(content, position, sFunction) {
+	parseFunction:function(content, position, sFunction, noSetArgumets) {
 		position += sFunction.length;
 		var f = sFunction, bCount = 0, start = 0, sz = content.length, i, s = content, ch,
 			res = {}, body = '',
@@ -260,14 +260,15 @@ var ClassParser = {
 			}
 		}
 		var dbg = false, countVisible = 0;
-		/*if (res.name == '_req') {
-			dbg = true;
-		}*/
-		//console.log('GET ' + args);
-		var defaultArgsFragment = this.createDefaultArgsFragment(args);
-		//console.log('OUTPUT ' + defaultArgsFragment);
-		//body = defaultArgsFragment + body;
-		body = body.replace('{', '{\n' + defaultArgsFragment);
+		
+		
+		if (!noSetArgumets) {
+			//console.log('GET ' + args);
+			var defaultArgsFragment = this.createDefaultArgsFragment(args);
+			//console.log('OUTPUT ' + defaultArgsFragment);
+			//body = defaultArgsFragment + body;
+			body = body.replace('{', '{\n' + defaultArgsFragment);
+		}
 		args = this.normalizeArgs(args, dbg);//удаляет значения по умолчанию и типы данных
 		//console.log('after normalize:');
 		//console.log(args);
@@ -446,7 +447,7 @@ var ClassParser = {
      * @param {Number} index
 	*/
 	setFunctionData:function(jsFunctionText, index) {
-		var data = this.parseFunction(jsFunctionText, 0, 'function');
+		var data = this.parseFunction(jsFunctionText, 0, 'function', true);
 		this.cFunctions[index].body = data.body;
 	},
 	/** @description Проходит по всем элементам cFunctions и меняет body на js код 
@@ -675,7 +676,7 @@ var ClassParser = {
 	*/
 	createDefaultArgsFragment:function(args) {
 		//console.log(args);
-		var aBuf = [], s, i, j, k = 0, linkBuf = [], isLink = false;
+		var aBuf = [], s, i, j, k = 0, linkBuf = [], isLink = false, map = {};
 		for (i = 0; i < args.length; i++) {
 			if 	(
 					(args[i + 1] == '='  && args[i + 2].charAt(0) != '$' && args[i].charAt(0) == '$')
@@ -687,15 +688,25 @@ var ClassParser = {
 					isLink = true;
 				}
 				args[i] = args[i].replace('&', '');
-				aBuf.push('\t\t' + args[i] + " = String(" + args[i]  +  ") == 'undefined' ? " + args[i + 2] + " : " +  args[i] + ";");
+				aBuf.push('\t' + args[i] + " = String(" + args[i]  +  ") == 'undefined' ? " + args[i + 2] + " : " +  args[i] + ";");
+				map[args[i]] = 1;
 				if (!isLink) {
-					linkBuf.push( '\t\t' + args[i] + " = __php2js_clone_argument__("  + args[i] + ");");
+					linkBuf.push( '\t' + args[i] + " = __php2js_clone_argument__("  + args[i] + ");");
 				} else {
 					isLink = false;
 				}
 				k++;
 			}
 		}
+		
+		for (i = 0; i < args.length; i++) {
+			if (args[i].charAt(0) == '$' && !map[args[i]]) {
+				linkBuf.push( '\t' + args[i] + " = __php2js_clone_argument__("  + args[i] + ");");
+				map[args[i]] = 1;
+				k++;
+			}
+		}
+		
 		if (k > 0) {
 			//console.log('WTF ' + (aBuf.join("\n") + "\n") );
 			return (aBuf.join("\n") + "\n" + linkBuf.join("\n") + "\n");

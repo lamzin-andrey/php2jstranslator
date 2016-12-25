@@ -10,8 +10,8 @@ var StringProcessor = {
 	/**
 	 * @description 
 	*/
-	replace:function(s) {
-		s = this.replaceInlineVars(s);
+	replace:function(s, concatFragment) {
+		s = this.replaceInlineVars(s, concatFragment);
 		return s;
 	},
 	/**
@@ -31,14 +31,14 @@ var StringProcessor = {
 		}
 		return r;
 	},
-	replaceInlineVars:function(s) {
+	replaceInlineVars:function(s, concatFragment) {
 		var i, arr = Phpjs.fStrings, L = arr.length, q;
 		for (i = 0; i < L; i++) {
 			q = $.trim(arr[i].v);
 			if (q.charAt(0) == '"') {
 				this.clearStack();
 				this.extractVars(q);
-				q = this.replaceVars(q);
+				q = this.replaceVars(q, concatFragment);
 				//в q  меняем строки на плейсхолдеры
 				q = this.setPlaceholders(q);
 				//дальше в s меняем плейсхолдер на q
@@ -82,15 +82,17 @@ var StringProcessor = {
 		}
 		return s;
 	},
-	replaceVars:function(s) {
+	replaceVars:function(s, concatFragment) {
 		var i, L = this.vars.length, q;
+		concatFragment = concatFragment ? concatFragment : ' . ';
 		for (i = 0; i < L; i++) {
 			q = $.trim(this.vars[i]);
 			var re = new RegExp(q.replace('-', '\\-').replace(/\[/g, '\\[').replace(/\}/g, '\\}').replace(/\{/g, '\\{').replace(/\$/g, '\\$'), 'gim');
 			if (q.charAt(0) == '{') {
 				q = q.replace('{', '').replace('}', '');
+				q = q.replace(/->/g, '.');
 			}
-			s = s.replace(re, '" . ' + q  + ' . "');
+			s = s.replace(re, '"' + concatFragment + q  + concatFragment +  '"');
 		}
 		return s;
 	},
