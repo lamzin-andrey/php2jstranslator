@@ -2,10 +2,18 @@ $_POST = {};
 $_SERVER = {};
 $_SESSION = {};
 function StdClass() {}
+function extend(a,b){
+	var c=new Function();
+	c.prototype=a.prototype;
+	b.prototype=new c();
+	b.prototype.constructor=b;
+	b.superclass=a.prototype;
+	b.superclass.__construct = a;
+}
 /**
  * @description В транслированом из php кода js коде тип Object может иметь только то, что в оригинальном коде было ассоциативным массивом
 */
-function __php2js_clone_argument__() {
+function __php2js_clone_argument__(o) {
 	if ((o instanceof Array) || (o && o.constructor && o.constructor.name == 'Object') ) {
 		if (o instanceof Array) {
 			var r = [], i, j;

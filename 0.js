@@ -147,10 +147,10 @@ var Phpjs = {
 		s = this.setMathFunctions(s);
 		s = this.setIssetExpression(s);
 		
-		s = s.replace(/new\s+StdClass\(\)/gm, '{}');
-		s = s.replace(/new\s+\\StdClass\(\)/gm, '{}');
-		s = s.replace(/new\s+StdClass/gm, '{}');
-		s = s.replace(/new\s+\\StdClass/gm, '{}');
+		//s = s.replace(/new\s+StdClass\(\)/gm, '{}');
+		s = s.replace(/new\s+\\StdClass\(\)/gm, 'new StdClass()');
+		//s = s.replace(/new\s+StdClass/gm, '{}');
+		s = s.replace(/new\s+\\StdClass/gm, 'new StdClass');
 		//TODO $arr[] = some; -> $arr.push(some);
 		s = this.arrayPush(s);
 		//инициализацию ассоциативных массивов  на инициализацию объектов
