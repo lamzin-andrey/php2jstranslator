@@ -2,6 +2,33 @@ $_POST = {};
 $_SERVER = {};
 $_SESSION = {};
 function StdClass() {}
+/**
+ * @description В транслированом из php кода js коде тип Object может иметь только то, что в оригинальном коде было ассоциативным массивом
+*/
+function __php2js_clone_argument__() {
+	if ((o instanceof Array) || (o && o.constructor && o.constructor.name == 'Object') ) {
+		if (o instanceof Array) {
+			var r = [], i, j;
+			for (i = 0; i < o.length; i++) {
+				j = o[i];
+				if (j instanceof Array) {
+					j = __php2js_clone_argument__(j);
+				}
+				r.push(o[i]);
+			}
+			return r;
+		}
+		var r = {}, i;
+		for (i in o) {
+			if ((o[i] instanceof Array) || (o[i] && o[i].constructor && o[i].constructor.name == 'Object') ) {
+				o[i] = __php2js_clone_argument__(o[i]);
+			}
+			r[i] = o[i];
+		}
+		return r;
+	}
+	return o;
+}
 function chr(n) {
 	return String.fromCharCode(n);
 }

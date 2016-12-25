@@ -216,7 +216,7 @@ var ClassParser = {
 		var f = sFunction, bCount = 0, start = 0, sz = content.length, i, s = content, ch,
 			res = {}, body = '',
 			//переменные относящиеся к разбору имени
-			inArglist = 0, word = '', allow = '$abcdefghijklmnopqrstuv_wxyz=[]', args = [],
+			inArglist = 0, word = '', allow = '$&abcdefghijklmnopqrstuv_wxyz=[]', args = [],
 			//переменные относящиеся к разбору модификаторов области видимости  и типа функции
 			aWord = [], startPos;
 		allow += (allow.toUpperCase() + '0123456789');
@@ -263,11 +263,14 @@ var ClassParser = {
 		/*if (res.name == '_req') {
 			dbg = true;
 		}*/
+		//console.log('GET ' + args);
 		var defaultArgsFragment = this.createDefaultArgsFragment(args);
-		//console.log('GET ' + defaultArgsFragment);
+		//console.log('OUTPUT ' + defaultArgsFragment);
 		//body = defaultArgsFragment + body;
 		body = body.replace('{', '{\n' + defaultArgsFragment);
-		args = this.normalizeArgs(args, dbg);//TODO удаляет значения по умолчанию и типы данных
+		args = this.normalizeArgs(args, dbg);//удаляет значения по умолчанию и типы данных
+		//console.log('after normalize:');
+		//console.log(args);
 		if (res.closePosition) {
 			res.body = body;
 			res.args = args;
@@ -672,17 +675,30 @@ var ClassParser = {
 	*/
 	createDefaultArgsFragment:function(args) {
 		//console.log(args);
-		var aBuf = [], s, i, j, k = 0;
+		var aBuf = [], s, i, j, k = 0, linkBuf = [], isLink = false;
 		for (i = 0; i < args.length; i++) {
-			if (args[i + 1] == '='  && args[i + 2].charAt(0) != '$' && args[i].charAt(0) == '$') {
-				//console.log('args[i] = ' + args[i]);
+			if 	(
+					(args[i + 1] == '='  && args[i + 2].charAt(0) != '$' && args[i].charAt(0) == '$')
+					||(
+						args[i + 1] == '='  && args[i + 2].charAt(0) != '&' && args[i].charAt(0) == '&'
+					)
+				) {
+				if (args[i + 2].charAt(0) != '&' && args[i].charAt(0) == '&') {
+					isLink = true;
+				}
+				args[i] = args[i].replace('&', '');
 				aBuf.push('\t\t' + args[i] + " = String(" + args[i]  +  ") == 'undefined' ? " + args[i + 2] + " : " +  args[i] + ";");
+				if (!isLink) {
+					linkBuf.push( '\t\t' + args[i] + " = __php2js_clone_argument__("  + args[i] + ");");
+				} else {
+					isLink = false;
+				}
 				k++;
 			}
 		}
 		if (k > 0) {
 			//console.log('WTF ' + (aBuf.join("\n") + "\n") );
-			return (aBuf.join("\n") + "\n");
+			return (aBuf.join("\n") + "\n" + linkBuf.join("\n") + "\n");
 		}
 		return "";
 	}
