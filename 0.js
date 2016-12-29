@@ -89,7 +89,7 @@ var Phpjs = {
 		this.placeholderN = 0;
 		this.clearClassStack();
 		//заменить все [];//{} на {};
-		lines = lines.replace(/\[\];\/\/\{\}/gim, '{};');
+		lines = lines.replace(/\[\];\/\/\{\}/gim, '{push:__php2js_push__};');
 		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
 		var s = this.grabClassCommentAndString(lines);
 		//console.log(s);

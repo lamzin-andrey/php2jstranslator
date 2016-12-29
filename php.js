@@ -37,6 +37,22 @@ function __php2js_clone_argument__(o) {
 	}
 	return o;
 }
+/**
+ * @description замена метода push для ассоциативных массивов, транслированных в 
+*/
+function __php2js_push__(item) {
+	var o = this, max = -1, i;
+	for (i in o) {
+		i = parseInt(i, 10);
+		if (!isNaN(i)) {
+			if (max < i) {
+				max = i;
+			}
+		}
+	}
+	max++;
+	this[max] = item;
+}
 function chr(n) {
 	return String.fromCharCode(n);
 }
