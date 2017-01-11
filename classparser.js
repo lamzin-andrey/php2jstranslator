@@ -700,8 +700,12 @@ var ClassParser = {
 		}
 		
 		for (i = 0; i < args.length; i++) {
-			if (args[i].charAt(0) == '$' && !map[args[i]]) {
+			if ( (args[i].charAt(0) == '$' && !map[args[i]]) ) {
 				linkBuf.push( '\t' + args[i] + " = __php2js_clone_argument__("  + args[i] + ");");
+				map[args[i]] = 1;
+				k++;
+			} else if (args[i].charAt(0) == '&' && !map[args[i].replace('&', '')]) {
+				args[i] = args[i].replace('&', '');
 				map[args[i]] = 1;
 				k++;
 			}

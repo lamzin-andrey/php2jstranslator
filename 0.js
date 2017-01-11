@@ -77,6 +77,7 @@ var Phpjs = {
 	*/
 	translate:function(lines) {
 		var data = {}, s;
+		lines = this.adaptiveArrayLexema(lines);
 		if (!this.isValidPhp(lines, data)) {
 			s = 'Строка ' + data.line + ', символ ' + data.position + ': ';
 			if (data.message) {
@@ -731,7 +732,7 @@ var Phpjs = {
 		info.position = 0;
 		info.word = '';
 		info.message = '';
-		var words = ['array('], i, j, s, a, start;
+		var words = ['arrayka('], i, j, s, a, start;
 		for (i = 0; i < words.length; i++) {
 			s = words[i];
 			start = lines.indexOf(s);
@@ -887,6 +888,58 @@ var Phpjs = {
 		}
 		s = className + '.superclass.' + a[0] + '.call(this' + t + a[1];
 		return s;
+	},
+	/**
+	 * @description Заменяет все вхождения array(bar); на [bar]
+	*/
+	adaptiveArrayLexema:function(s) {
+		var re = /array\s*\(/mi, start = s.search(re), i, j, k = 0,
+			ch, sBuf = '', placeholder = 'PHPJS_ARR_TAG_', m, 
+			list = {}, q, doExit,
+			lat = 'abcdefghijklmnopqrstuvwxyz',
+			varAllow = '$0123456789_' + lat + lat.toUpperCase(),
+			head, tail;
+		while (~start) {
+			ch = s.charAt(start - 1);
+			if (~varAllow.indexOf(ch) ) {
+				//start = s.search(re, start + 1);
+				m = placeholder + k;
+				k++;
+				q = 'array(';
+				s = s.replace(/array\s*\(/im, m);
+				list[m] = q;
+				start = s.search(re);
+				break;
+			} else {
+				head = s.substring(0, start);
+				tail = s.substring(start);
+				tail = tail.replace(/^array\s*\(/i, '[');
+				i = 1;
+				sBuf = '';
+				doExit = false;
+				for (j = 0; j < tail.length; j++) {
+					ch = tail.charAt(j);
+					if (ch == '(') {
+						i++;
+					}
+					if (ch == ')') {
+						i--;
+					}
+					if (ch == ')' && i == 0 && !doExit) {
+						ch = ']';
+						doExit = true;
+					}
+					sBuf += ch;
+				}
+				s = head + sBuf;
+				start = s.search(re);
+			}
+		}
+		for (i in list) {
+			s = s.replace(i, list[i]);
+		}
+		return s;
 	}
 };
+
 
