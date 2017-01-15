@@ -76,45 +76,7 @@ var Phpjs = {
 	 * @description временно вызывает translateFunction то есть пока можно транслировать одну функцию
 	*/
 	translate:function(lines) {
-		var data = {}, s;
-		lines = this.adaptiveArrayLexema(lines);
-		if (!this.isValidPhp(lines, data)) {
-			s = 'Строка ' + data.line + ', символ ' + data.position + ': ';
-			if (data.message) {
-				alert(s + data.message);
-			} else {
-				alert(s + 'Недопустимое вхождение ' + data.word);
-			}
-			return lines;
-		}
-		this.placeholderN = 0;
-		this.clearClassStack();
-		//заменить все [];//{} на {};
-		lines = lines.replace(/\[\];\/\/\{\}/gim, '{push:__php2js_push__};');
-		//1 Заменить строки и комментарии на плейсхолдеры, используя существующий код
-		var s = this.grabClassCommentAndString(lines);
-		//console.log(s);
-		//return;
-		//2 скопировать стеки f в стеки c
-		this.copyFunctionsStackToClassStack();
-		
-		//TODO заменить на 
-		ClassParser.init(Library._GET('objType', 0));
-		s = ClassParser.parse(s, this);//TODO
-		
-		//9 Восстановить из c стеков комментарии и плейсхолдеры
-		this.clearFunctionStack();
-		this.copyClassStackToFunctionsStack();
-		
-		//все строки содержащие в себе {$var} или  $var разбить, заменить все подстроки на плейсхолдеры, результат на конкатенацию плейсхолдеров, исходный плейсхолдер в коде заменить на этот результат
-		s = StringProcessor.replace(s, ' + ');
-		this.replaceNewLines();
-		
-		
-		//console.log(this.cComments);
-		s = this.restorePlaceholders(s, true);
-		return s;
-		//return this.translateFunction(lines);
+		return this.translateFunction(lines);
 	},
 	/**
 	 * @description транслирует код php функции в код js функции
@@ -871,6 +833,8 @@ var Phpjs = {
 				head = s.substring(0, start);
 				tail = s.substring(end);
 				s = head + q + tail;
+			} else {
+				break;
 			}
 			start = s.indexOf('parent');
 		}
