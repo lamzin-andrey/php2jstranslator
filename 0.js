@@ -871,6 +871,8 @@ var Phpjs = {
 				head = s.substring(0, start);
 				tail = s.substring(end);
 				s = head + q + tail;
+			} else {
+				break;
 			}
 			start = s.indexOf('parent');
 		}
