@@ -4,7 +4,7 @@ function init() {
 	var KEY = 'd8sfldspgj';
 	var LS = window.localStorage;
 	e('in').value = LS.getItem(KEY) ? LS.getItem(KEY) : '';
-	e('ok').onclick = main;
+	//e('ok').onclick = main;
 	e('in').onkeydown = function() {
 		setTimeout(function(){
 			LS.setItem(KEY, e('in').value);
