@@ -115,7 +115,6 @@ var ClassParser = {
 				}
 			}
 		}
-		//console.log(this.cFields);
 		this.classInfo.classBody = s;
 	},
 	/** 
@@ -183,13 +182,13 @@ var ClassParser = {
 			metadata = {},
 			placeholder,
 			p = s.indexOf(f);
+		//console.log(s);
 		while (p != -1) {
 			/* s - content, p - position, f - function */
 			metadata = this.parseFunction(s, p, f);
 			if (metadata.success) {
 				placeholder = this.pcp + this.pcpCounter;
 				this.pcpCounter++;
-				//console.log('replace ' + metadata.rawContent + ' ON ' + placeholder);
 				s = s.replace(metadata.rawContent, placeholder);
 				this.cFunctions.push( {
 					placeholder:placeholder,
@@ -205,13 +204,14 @@ var ClassParser = {
 				p = s.indexOf(f, p + 1);
 			}
 		}
+		//console.log(s);
 		this.classInfo.classBody = s;
-
 	},
 	/**
 	 * @return {name, body, args:[], closePosition, rawContent}
 	*/
 	parseFunction:function(content, position, sFunction, noSetArgumets) {
+		//console.log(content);
 		position += sFunction.length;
 		var f = sFunction, bCount = 0, start = 0, sz = content.length, i, s = content, ch,
 			res = {}, body = '',
@@ -316,6 +316,19 @@ var ClassParser = {
 				}
 			}
 			res.rawContent = s.substring(startPos, res.closePosition);
+			//phpjs_f_placeholder_
+			var placeholderstart = 'phpjs_f_placeholder_', isInvalid = 0;
+			while (~res.rawContent.indexOf(placeholderstart)) {
+				isInvalid = 1;
+				startPos = res.rawContent.indexOf(placeholderstart) + placeholderstart.length + 1;
+				while (allow.indexOf(res.rawContent.charAt(startPos)) != -1) {
+					startPos++;
+				}
+				res.rawContent = s.substring(startPos, res.closePosition);
+			}
+			if (isInvalid) {
+				res.rawContent = s.substring(startPos, res.closePosition);
+			}
 			res.success = true;
 			return res;
 		}
@@ -478,11 +491,7 @@ var ClassParser = {
 	},
 	restoreFields:function() {
 		var s = this.classInfo.classBody, i, j, iValue, dValue, sValue, divider = '=', token = ';', expr, ex;
-		/*if (this.buildAsStaticObject = false) {
-			divider = '=';
-			token = ';';
-		}*/
-
+		
 		for(i = 0; i < this.cFields.length; i++) {
 			j = this.cFields[i];
 			
@@ -514,14 +523,11 @@ var ClassParser = {
 			}
 			this.classInfo.classBody = s;
 		}
-
-		/*console.log(s);
-		console.log(this.cFields);
-		console.log(this.constructorFragment);*/
-
 		//7 Пройти по стеку полей,  сохраненные строки парсить. Если поле было инициализованно значением, 
 		//   менять на строку, которая будет переправлена в constructor
 		//   иначе на комментарий вида @property
+		
+		
 	},
 	/**
 	 *
@@ -543,7 +549,7 @@ var ClassParser = {
 
 		//};
 		if (this.buildAsStaticObject == false) {
-			extendConstructorBody = 'function ' + this.classInfo.className + '(ARGUMENTS) {\nCONSTRUCTOR_FRAGMENT\n}\n';
+			extendConstructorBody = 'function ' + this.classInfo.className + '(ARGUMENTS) {\n//CONSTRUCTOR_FRAGMENT\n}\n';
 			openClassPart = '';//this.classInfo.className + '.prototype = {\n';
 		} else {
 			openClassPart = '';//'var ' + this.classInfo.className + ' = {\n';
@@ -574,7 +580,7 @@ var ClassParser = {
 				} else {
 					s = j.body.replace('{', '');
 					s = s.replace(/\}$/m, '');
-					extendConstructorBody = extendConstructorBody.replace('CONSTRUCTOR_FRAGMENT', '\n' + constructorFragment + "\n" + s);
+					extendConstructorBody = extendConstructorBody.replace('//CONSTRUCTOR_FRAGMENT', '\n' + constructorFragment + "\n" + s);
 					extendConstructorBody = extendConstructorBody.replace('ARGUMENTS', sArgs);
 					sBody = sBody.replace(j.placeholder, '');
 					continue;
@@ -583,9 +589,9 @@ var ClassParser = {
 			if (i == this.cFunctions.length - 1) {
 				token = '\n';
 			}
-			j.body = this.formatter(j.body, 2, tab);//TODO
+			j.body = this.formatter(j.body, 1, tab);//TODO
 			var prefixClassMethod = this.classInfo.className + '.prototype.'
-			//console.log(this.classInfo);
+
 			if (this.buildAsStaticObject || j.isStatic) {
 				prefixClassMethod = this.classInfo.className + '.'
 			}
@@ -598,7 +604,6 @@ var ClassParser = {
 			this.constantsFragment.push('extend(' + this.classInfo.extendsClassName + ', ' + this.classInfo.className + ');');
 		}
 		res = this.constantsFragment.join('\n') + '\n' + res;
-		//console.log(res);
 		return res;
 	},
 	/**
@@ -668,14 +673,12 @@ var ClassParser = {
 			}
 		}
 		r = r.join('\n');
-		//console.log(r);
 		return r;
 	},
 	/**
 	 * @description Создаёт строку вида arg0 = String(arg0) === 'undefined' ? value : arg0; для аргументов фукнкции со значениями по умолчанию.
 	*/
 	createDefaultArgsFragment:function(args) {
-		//console.log(args);
 		var aBuf = [], s, i, j, k = 0, linkBuf = [], isLink = false, map = {};
 		for (i = 0; i < args.length; i++) {
 			if 	(
@@ -712,7 +715,6 @@ var ClassParser = {
 		}
 		
 		if (k > 0) {
-			//console.log('WTF ' + (aBuf.join("\n") + "\n") );
 			return (aBuf.join("\n") + "\n" + linkBuf.join("\n") + "\n");
 		}
 		return "";
