@@ -38,11 +38,13 @@ var StringProcessor = {
 			if (q.charAt(0) == '"') {
 				this.clearStack();
 				this.extractVars(q);
-				q = this.replaceVars(q, concatFragment);
-				//в q  меняем строки на плейсхолдеры
-				q = this.setPlaceholders(q);
-				//дальше в s меняем плейсхолдер на q
-				s = s.replace(arr[i].k, q);
+				if (this.vars.length) {
+					q = this.replaceVars(q, concatFragment);
+					//в q  меняем строки на плейсхолдеры
+					q = this.setPlaceholders(q);
+					//дальше в s меняем плейсхолдер на q
+					s = s.replace(arr[i].k, q);
+				}
 			}
 		}
 		return s;
