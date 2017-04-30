@@ -104,6 +104,7 @@ var Phpjs = {
 	 * @param className это значение (className.) будет подставлено вместо self::
 	*/
 	translateFunction:function(lines, className) {
+		lines = this.adaptiveArrayLexema(lines);
 		var i, s = lines;
 		className = String(className) == 'undefined' ? 'this' : className;
 		this.clearFunctionStack();
