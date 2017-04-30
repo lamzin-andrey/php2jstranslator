@@ -240,6 +240,26 @@ function array_search(s, arr) {
 	});
 	return r;
 }
+function array_unique(a){
+	if (!(a instanceof Array) && !!(a instanceof Object)) {
+		return a;
+	}
+	var i, o = {};
+	if ((a instanceof Array)) {
+		for (i = 0; i < a.length; i++) {
+			o[a[i]] = 1;
+		}
+	} else {
+		for (i in a) {
+			o[a[i]] = 1;
+		}
+	}
+	a = [];
+	for (i in o) {
+		a.push(i);
+	}
+	return a;
+}
 function array_fill_keys(arr, value) {
 	var i, res = {};
 	for (i = 0; i < arr.length; i++) {
