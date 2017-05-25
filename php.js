@@ -1,4 +1,5 @@
 $_POST = {};
+$_GET = {};
 $_SERVER = {};
 $_SESSION = {};
 function StdClass() {}
@@ -240,6 +241,27 @@ function array_search(s, arr) {
 	});
 	return r;
 }
+function array_shift(arr) {
+	if (arr instanceof Array) {
+		var k = arr.shift();
+		return k;
+	}
+	if (typeof(arr) == 'object') {
+		var obj = {}, i, j = 0, m;
+		for (i in arr) {
+			if (j == 0) {
+				j++;
+			} else {
+				//obj[i] = arr[i];
+				break;
+			}
+		}
+		m = arr[i];
+		delete arr[i];
+		return m;
+	}
+	return arr;
+}
 function array_unique(a){
 	if (!(a instanceof Array) && !!(a instanceof Object)) {
 		return a;
@@ -273,6 +295,10 @@ function hexdec(n) {
 		throw new Error('n = ' + n);
 	}
 	return r;
+}
+function htmlspecialchars($s) {
+	//return encodeURIComponent($s);
+	return $s;
 }
 function in_array(needle, subject, strict) {
 	var i, j, r;
@@ -310,6 +336,9 @@ function is_array(s) {
 		return true;
 	}
 	if (typeof(s) == 'array') {
+		return true;
+	}
+	if (typeof(s) == 'object') {
 		return true;
 	}
 	return false;
@@ -646,6 +675,10 @@ function method_exists(obj, foo) {
 	}
 	return false;
 }
+function md5(s){
+	//TODO
+	return s;
+}
 function min(arr) {
 	if (arr instanceof Array) {
 		return Math.min.apply(Math, arr);
@@ -698,7 +731,22 @@ function rand(min, max) {
 
 
 function session_start() {}
-
+/**
+ * @description pseodorequest may be helpful for validate data before send
+*/
+function die(data) {
+	if (window && window.pseudorequest && window.pseudorequest.onSuccess && (window.pseudorequest.onSuccess instanceof Function)) {
+		try {
+			data = JSON.parse(data);
+		}catch(e){;}
+		if (window.pseudorequest.log) {
+			console.log(data);
+		}
+		window.pseudorequest.onSuccess(data);
+		return;
+	}
+	throw new Error(data);
+}
 function dirname() {
 	if (Qt && Qt.appDir) {
 		return Qt.appDir();
@@ -719,7 +767,20 @@ function file_get_contents($file) {
 	}
 	return '';
 }
-
+function json_encode(d) {
+	return JSON.stringify(d);
+}
+function join(glue, data) {
+	if (data instanceof Array) {
+		return data.join(glue);
+	} else if(data instanceof Object){
+		var i, k = [];
+		for (i in data) {
+			k.push(data[i]);
+		}
+		return k.join(glue);
+	}
+}
 function str_replace(search, replace, subject, oCount) {
 	while (subject.indexOf(search) != -1) {
 		subject = subject.replace(search, replace);
@@ -732,7 +793,23 @@ function str_replace(search, replace, subject, oCount) {
 	}
 	return subject;
 }
-
+function strip_tags(s) {
+	var i, ch, inTag = 0, q = '';
+	for (i = 0; i < s.length; i++) {
+		ch = s.charAt(i);
+		if (ch == '<') {
+			inTag = 1;
+		}
+		if (ch == '>') {
+			inTag = 0;
+			continue;
+		}
+		if (!inTag) {
+			q += ch;
+		}
+	}
+	return q;
+}
 function date(pattern){
 	var dt = new Date(), map = {
 		Y : dt.getFullYear(),
@@ -750,6 +827,10 @@ function date(pattern){
 	return pattern;
 }
 
+function uniqid(s) {
+	//TODO
+	return s;
+}
 
 function Request(){}
 Request.prototype.input = function(v, def) {
