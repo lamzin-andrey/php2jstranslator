@@ -542,6 +542,9 @@ function pathinfo(path) {
 	r.extension = ext;
 	return r;
 }
+function array_reverse(a) {
+	return a.reverse();
+}
 function array_values(v) {
 	var r = [];
 	if (v instanceof Array) {
