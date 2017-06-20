@@ -758,7 +758,7 @@ function dirname() {
 }
 
 function file_exists(filename) {
-	if (PHP && PHP.file_exists) {
+	if (window.PHP && PHP.file_exists) {
 		return PHP.file_exists(filename);
 	}
 	return false;
@@ -833,6 +833,35 @@ function date(pattern){
 function uniqid(s) {
 	//TODO
 	return s;
+}
+function parse_url(s) {
+	s = $.trim(s);
+	var a, r = {}, i, q;
+	a = s.split('?');
+	if (a.length > 1) {
+		q = a[a.length - 1];
+	}
+	s = s.replace('?' + q, '');
+	
+	a = s.split('/');
+	if (a[0] == 'http:' || a[0] == 'https:') {
+		r.scheme = a[0].replace(':', '');
+	}
+	if (a[2]) {
+		r.host = a[2];
+	}
+	if (r.scheme) {
+		array_shift(a);
+		array_shift(a);
+		array_shift(a);
+	}
+	if (a.length) {
+		r.path = a.join('/');
+	}
+	if (q) {
+		r.query = q;
+	}
+	return r;
 }
 
 function Request(){}
