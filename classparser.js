@@ -579,7 +579,7 @@ var ClassParser = {
 					j.body = j.body.replace('{', '{\n' + tab + tab + constructorFragment + '\n');
 				} else {
 					s = j.body.replace('{', '');
-					s = s.replace(/\}$/m, '');
+					s = s.replace(/\}$/, '');
 					extendConstructorBody = extendConstructorBody.replace('//CONSTRUCTOR_FRAGMENT', '\n' + constructorFragment + "\n" + s);
 					extendConstructorBody = extendConstructorBody.replace('ARGUMENTS', sArgs);
 					sBody = sBody.replace(j.placeholder, '');

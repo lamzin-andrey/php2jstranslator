@@ -1,5 +1,6 @@
 window.pseudorequest = {};
 function p_post(data, onSuccess, url, onFail) {
+	var app, sUrl = url;
 	if (!url) {
 		url = window.location.href;
 	} else {
@@ -11,7 +12,11 @@ function p_post(data, onSuccess, url, onFail) {
 	$_POST = data;
 	$_POST['_token'] = getToken();
 	window.pseudorequest.active = 1;
-	pseudoRequestRun();
+	app = pseudoRequestRun();
+	if (!app) {
+		window.pseudorequest.active = 0;
+		_post(data, onSuccess, sUrl, onFail);
+	}
 }
 function pseudoRequestClose() {
 	window.pseudorequest.active = 0;

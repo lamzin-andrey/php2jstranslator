@@ -707,33 +707,25 @@ function mb_strpos(s, substr) {
 }
 
 function rand(min, max) {
-	var n = Math.random(), sN = String(n), sMin = String(min),
-	    sMax = String(max), s;
-	while (true) {
-		sN = sN.replace('.', '');
-		sN = sN.replace(/^0+/, '');
-		if (sN.length >= sMin.length) {
-			sN = sN.substring(0, sMin.length + 1);
-			break;
+	var n = 0, k;
+	while (n == 0) n = Math.round(Math.random()*(max-min))+min;
+	k = Math.random();
+	if (k > 0.5) {
+		if (k > 0.75 && n == max - 1) {
+			n++;
+		} else if( n == min + 1){
+			n--;
 		}
-		n = Math.random();
-		sN = String(n);
-	}
-	n = parseInt(sN, 10);
-	if (n < min) {
-		n += min;
-	}
-	if (n > max) {
-		n = n % max;
-	}
-	if (n < min) {
-		n += min;
 	}
 	return n;
 }
 
 
 function session_start() {}
+
+function strtotime(sDate) {
+	return time(sDate);
+}
 /**
  * @description pseodorequest may be helpful for validate data before send
 */
@@ -785,12 +777,14 @@ function join(glue, data) {
 	}
 }
 function str_replace(search, replace, subject, oCount) {
+	if (oCount && (oCount instanceof Object)) {
+		if (!oCount.v) {
+			oCount.v = 0;
+		}
+	}
 	while (subject.indexOf(search) != -1) {
 		subject = subject.replace(search, replace);
 		if (oCount && (oCount instanceof Object)) {
-			if (!oCount.v) {
-				oCount.v = 0;
-			}
 			oCount.v++;
 		}
 	}
@@ -813,18 +807,29 @@ function strip_tags(s) {
 	}
 	return q;
 }
-function date(pattern){
-	var dt = new Date(), map = {
+function _dateParseN(dt) {
+	var n = dt.getDay();
+	n = (n == 0 ? 7 : n);
+	return n;
+}
+function date(pattern, ts){
+	ts = ts ? ts : time();
+	ts *= 1000;
+	var dt = new Date(ts), map = {
 		Y : dt.getFullYear(),
+		y : dt.getYear(),
 		m : dt.getMonth() + 1,
 		d : dt.getDate(),
 		H : dt.getHours(),
+		N : _dateParseN(dt),
 		i : dt.getMinutes(),
 		s : dt.getSeconds()
 	};
 	var key;
 	for (key in map) {
-		map[key] = +map[key] < 10 ? ('0' + map[key]) : map[key];
+		if (key != 'N') {
+			map[key] = +map[key] < 10 ? ('0' + map[key]) : map[key];
+		}
 		pattern = str_replace(key, map[key], pattern);
 	}
 	return pattern;
