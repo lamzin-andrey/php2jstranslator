@@ -464,7 +464,7 @@ function sprintf() {
 			buf = '';
 			for (j = i; j < format.length; j++) {
 				ch = format.charAt(j);
-				if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == ')' || ch == '('|| ch == ']' || ch == '[') {
+				if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == ')' || ch == '('|| ch == ']' || ch == '[' || ch == '\''  || ch == '"'  || ch == ':') {
 					break;
 				}
 				buf += ch;
