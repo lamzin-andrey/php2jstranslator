@@ -7,7 +7,7 @@ var ClassParser = {
 	*/
 
 	/**
-	 * @property cFunctions {Array} массив хеш функйий
+	 * @property cFunctions {Array} массив хеш функций
 	 * Элемент: {placeholder:String, name:String, args:[], body:String}
 	 * placeholder - ключ, на который заменена функция в исходном коде
 	 * name - имя функции
@@ -19,7 +19,7 @@ var ClassParser = {
 	*/
 	cFunctions: [],
 	/**
-	 * @property cFunctions {Array} массив хеш функйий
+	 * @property cFunctions {Array} массив хеш функций
 	 * Элемент: {placeholder:String, :String, args:[], body:String}
 	 * placeholder - ключ, на который заменена функция в исходном коде
 	 * name - имя функции
