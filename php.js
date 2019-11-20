@@ -262,6 +262,36 @@ function array_shift(arr) {
 	}
 	return arr;
 }
+/**
+ * В процессе https://www.php.net/manual/ru/function.array-slice.php
+ * @param {Array} or {Object} aInput
+ * @param {Number] iOffset
+ * @param {Number} iLength = null
+ * @param {Boolean} bPreversekeys = false 
+ * @return Array or Object bPreversekeys true или aInput объект 
+*/
+function __array_slice(aInput, iOffset, iLength, bPreversekeys) {
+	var u = 'undefined';
+	iLength = String(iLength) == u ? null : iLength;
+	bPreversekeys = String(bPreversekeys) == u ? false : bPreversekeys;
+	
+	if (iLength == null) {
+		iLength = count(aInput);
+	}
+	if (iOffset < 0) {
+		iOffset = count(aInput) + iOffset; 
+	}
+	//Элемент iOffset включаем, я проверял
+	
+	//Сначала делаю с массивом, использовать Array.slice не надо,
+	//там используются индексы во втором аргументе
+	if (aInput instanceof Array && !bPreversekeys) {
+		
+	}
+	
+	//Потом всё то же с объектом
+	
+}
 function array_unique(a){
 	if (!(a instanceof Array) && !!(a instanceof Object)) {
 		return a;
