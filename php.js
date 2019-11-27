@@ -266,17 +266,24 @@ function array_shift(arr) {
  * В процессе https://www.php.net/manual/ru/function.array-slice.php
  * @param {Array} or {Object} aInput
  * @param {Number] iOffset
- * @param {Number} iLength = null
+ * @param {Number} iLength = null  (as in PHP 5.2.4+)  A NULL length now tells the function to use the length of array. Значение NULL в качестве length теперь означает, что в качестве этого значения будет использована длина массива array.
  * @param {Boolean} bPreversekeys = false 
  * @return Array or Object bPreversekeys true или aInput объект 
 */
 function __array_slice(aInput, iOffset, iLength, bPreversekeys) {
-	var u = 'undefined';
+	var u = 'undefined', i, iSz, result, inputSize = count(aInput);
 	iLength = String(iLength) == u ? null : iLength;
 	bPreversekeys = String(bPreversekeys) == u ? false : bPreversekeys;
 	
 	if (iLength == null) {
-		iLength = count(aInput);
+		iSz = inputSize;
+	} else {
+		if (iLength > = 0) {
+			iSz = iOffset + iLength;
+			iSz = iSz <= inputSize ? iSz : inputSize;
+		} else {
+			iSz = inputSize - 1;
+		}
 	}
 	if (iOffset < 0) {
 		iOffset = count(aInput) + iOffset; 
@@ -286,9 +293,13 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys) {
 	//Сначала делаю с массивом, использовать Array.slice не надо,
 	//там используются индексы во втором аргументе
 	if (aInput instanceof Array && !bPreversekeys) {
-		
+		result = [];
+		for (i = iOffset; i < iSz; i++) {
+			result.push(i);
+		}
+		//return result;
 	}
-	
+	return result;
 	//Потом всё то же с объектом
 	
 }
