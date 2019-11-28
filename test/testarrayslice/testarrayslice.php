@@ -1,4 +1,7 @@
 <?php
+//php 7.2.24
+require_once __DIR__ . '/console.php';
+
 class TestArraySlice {
 	
 	const LONG_ARRAY_SIZE = 100;
@@ -13,6 +16,7 @@ class TestArraySlice {
 	//Тут все варианты для положительного offset и длины тоже положительной
 	public function testPositiveOffsetAndPositiveLength()
 	{
+		$eArr = [];
 		//от начала массива
 		$aR = array_slice($this->_longArray, 0, 3);
 		if (!$this->_eqArray($aR, [0, 1, 2])) {
@@ -34,7 +38,8 @@ class TestArraySlice {
 		
 		//часть массива нулевой длины
 		$aR = array_slice($this->_longArray, 2, 0);
-		if (!$this->_eqArray($aR, [])) {
+		
+		if (!$this->_eqArray($aR, $eArr)) {
 			var_dump($aR);
 			$this->_errMsg('Error on часть массива нулевой длины');
 			exit();
@@ -43,10 +48,11 @@ class TestArraySlice {
 		}
 		
 		//часть массива с длиной больше чем массив
+		$name = 'часть массива с длиной больше чем массив';
 		$aR = array_slice($this->_longArray, static::LONG_ARRAY_SIZE - 3, static::LONG_ARRAY_SIZE + 3);
 		if (!$this->_eqArray($aR, [97, 98, 99])) {
 			var_dump($aR);
-			$this->_errMsg('Error on line ' . __LINE__);
+			$this->_errMsg('Error on line ' . $name );
 			exit();
 		} else {
 			$this->_info();
@@ -65,18 +71,96 @@ class TestArraySlice {
 			$this->_info();
 		}
 		
+		$eAr = [];
 		
 		$name = 'пересечение начала и конца';
 		$aR = array_slice($this->_longArray, 10, -1 * (static::LONG_ARRAY_SIZE - 2 ) );
-		if (!$this->_eqArray($aR, [])) {
+		if (!$this->_eqArray($aR, $eAr)) {
 			$this->_errMsg('Error on line ' . $name);
 			var_dump($aR);
 			exit();
 		} else {
 			$this->_info();
 		}
+		
+		$name = 'offset больше длины массива';
+		$aR = array_slice($this->_longArray, static::LONG_ARRAY_SIZE, -1 * (static::LONG_ARRAY_SIZE - 2 ) );
+		if (!$this->_eqArray($aR, $eAr)) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
+		$name = 'length не задан';
+		$aR = array_slice($this->_longArray, floor(static::LONG_ARRAY_SIZE / 2));
+		if (count($aR) != 50) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
 	}
 	
+	//Тут все варианты для отрицательного offset и отрицательной длины 
+	public function testNegativeOffsetAndNegativeLength()
+	{
+		$name = 'для отрицательного offset и отрицательной длины ';
+		$aR = array_slice($this->_longArray, -2, -5);
+		$eAr = [];
+		if (!$this->_eqArray($aR, $eAr)) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
+		$name = 'для отрицательного offset и отрицательной длины 2';
+		$aR = array_slice($this->_longArray, -99, -97);
+		if (!$this->_eqArray($aR, [1, 2])) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
+		$name = 'для отрицательного offset и отрицательной длины 3';
+		$aR = array_slice($this->_longArray, -60, -50);
+		if (!$this->_eqArray($aR, [40, 41, 42, 43, 44, 45, 46, 47, 48, 49])) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+	}
+	//Тут все варианты для отрицательного offset и положительной длины 
+	public function testNegativeOffsetAndPositiveLength()
+	{
+		$name = 'для отрицательного offset и положительной длины 1';
+		$aR = array_slice($this->_longArray, -10, 3);
+		if (!$this->_eqArray($aR, [90, 91, 92])) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
+		$name = 'для отрицательного offset и положительной длины большей чем размер массива';
+		$aR = array_slice($this->_longArray, -2, static::LONG_ARRAY_SIZE);
+		if (!$this->_eqArray($aR, [98, 99])) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+	}
 	/**
 	 * @return bool
 	*/
@@ -107,12 +191,11 @@ class TestArraySlice {
 	
 	private function _errMsg($s)
 	{
-		echo ("{$s}\n\n");
-		echo ("\033[41m{$s}.\033[m\n");
+		console::error($s);
 	}
 	
 	private function _info($s = '.')
 	{
-		echo ("{$s}\n");
+		console::log($s);
 	}
 }

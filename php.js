@@ -270,7 +270,7 @@ function array_shift(arr) {
  * @param {Boolean} bPreversekeys = false 
  * @return Array or Object bPreversekeys true или aInput объект 
 */
-function __array_slice(aInput, iOffset, iLength, bPreversekeys) {
+function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
 	var u = 'undefined', i, iSz, result, inputSize = count(aInput);
 	iLength = String(iLength) == u ? null : iLength;
 	bPreversekeys = String(bPreversekeys) == u ? false : bPreversekeys;
@@ -278,11 +278,15 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys) {
 	if (iLength == null) {
 		iSz = inputSize;
 	} else {
-		if (iLength > = 0) {
+		if (iLength >= 0) {
 			iSz = iOffset + iLength;
 			iSz = iSz <= inputSize ? iSz : inputSize;
 		} else {
-			iSz = inputSize - 1;
+			iSz = inputSize + iLength;
+			if (bDbg) {
+				console.log('inputSize', inputSize);
+				console.log('iSz', iSz);
+			}
 		}
 	}
 	if (iOffset < 0) {
@@ -453,6 +457,9 @@ function empty(v) {
 		}
 	}
 	return false;
+}
+function exit() {
+	throw new Error("Exit");
 }
 function array() {
 	return [];
@@ -879,6 +886,9 @@ function date(pattern, ts){
 function uniqid(s) {
 	//TODO
 	return s;
+}
+function var_dump(o) {
+	console.log(o);
 }
 function parse_url(s) {
 	s = $.trim(s);
