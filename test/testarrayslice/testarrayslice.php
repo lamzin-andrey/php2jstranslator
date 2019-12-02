@@ -24,6 +24,17 @@ class TestArraySlice {
 			42 => 142,
 			60 => 160
 		];
+		
+		//Для php нет разницы между этим и предыдушим объявлением, но после трансляции в js разница будет
+		$this->_assocNums = [];
+		$this->_assocNums[5] = 15;
+		$this->_assocNums[10] = 110;
+		$this->_assocNums[7] = 17;
+		$this->_assocNums[14] = 114;
+		$this->_assocNums[42] = 142;
+		$this->_assocNums[60] = 160;
+		
+		//var_dump($this->_assocNums);die;
 	}
 	//Тут все варианты для положительного offset и длины тоже положительной
 	public function testPositiveOffsetAndPositiveLength()
@@ -432,28 +443,59 @@ class TestArraySlice {
 		
 		//ассоциативный массив с цифрами
 		
-		/*$name = 'для отрицательного offset и положительной длины 1 bPreversekeys = false';
-		$aR = array_slice($this->_longArray, -10, 3);
-		if (!$this->_eqSets($aR, [90, 91, 92])) {
+		//для отрицательного offset и положительной длины 1 bPreversekeys = false
+		$name = 'для отрицательного offset и положительной длины 1 bPreversekeys = false';
+		$aR = array_slice($this->_assocNums, -4, 3);
+		if (!$this->_eqAssocSets($aR, [17, 114, 142])) {
 			$this->_errMsg('Error on line ' . $name);
 			var_dump($aR);
 			exit();
 		} else {
 			$this->_info(' . ' . $name);
-		}*/
+		}
 		
-		/*
-		 * ПРИМЕР
-		 * //для отрицательного offset и отрицательной длины 2 bPreversekeys = false
-		$name = 'для отрицательного offset и отрицательной длины 2 bPreversekeys = false';
-		$aR = array_slice($this->_assocNums, -5, -2);
-		if (!$this->_eqAssocSets($aR, [110, 17, 114])) {
+		//для отрицательного offset и положительной длины 1 bPreversekeys = true
+		$name = 'для отрицательного offset и положительной длины 1 bPreversekeys = true';
+		$aR = array_slice($this->_assocNums, -4, 3, true);
+		$aCtrl = [
+			7 => 17,
+			14 => 114,
+			42 => 142,
+		];
+		if (!$this->_eqAssocSets($aR, $aCtrl)) {
 			$this->_errMsg('Error on line ' . $name);
 			var_dump($aR);
 			exit();
 		} else {
 			$this->_info(' . ' . $name);
-		}*/
+		}
+		
+		//для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = false
+		$name = 'для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = false';
+		$aR = array_slice($this->_assocNums, -2, self::ASSOC_NUMS_ARRAY_SIZE);
+		if (!$this->_eqAssocSets($aR, [142, 160])) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
+		//для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = true
+		$name = 'для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = true';
+		$aR = array_slice($this->_assocNums, -2, self::ASSOC_NUMS_ARRAY_SIZE, true);
+		$aCtrl = [
+			42 => 142,
+			60 => 160
+		];
+		if (!$this->_eqAssocSets($aR, $aCtrl)) {
+			$this->_errMsg('Error on line ' . $name);
+			var_dump($aR);
+			exit();
+		} else {
+			$this->_info(' . ' . $name);
+		}
+		
 	}
 	/**
 	 * @return bool

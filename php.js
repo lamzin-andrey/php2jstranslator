@@ -264,18 +264,24 @@ function array_shift(arr) {
 }
 /**
  * В процессе https://www.php.net/manual/ru/function.array-slice.php
- * Остановился на написании php теста для ассоциативного массива где ключи только цифры.
- *  testNegativeOffsetAndPositiveLength - там ещё ни один тест для простого масссива не повторён для ассоциативного.
- * _assocNums важно задать так, чтобы он после трансляции в js был массивом, а не объектом. Сейчас это не так.
+ * 
+ * Переписать тесты заменив ключи на строки.
+ * 
+ * Проблема числовых ключей в array_slice - js упорядочивает их.
+ * Варианта для данных, полученных извне просто нет.
+ * Для объявленных прямо в коде можно помудрить. Но стоит ли?
+ * 
+ * Итого, скорее всего ничего лучше чем Exception не ждёт нас...
  * 
  * @param {Array} or {Object} aInput
  * @param {Number] iOffset
  * @param {Number} iLength = null  (as in PHP 5.2.4+)  A NULL length now tells the function to use the length of array. Значение NULL в качестве length теперь означает, что в качестве этого значения будет использована длина массива array.
  * @param {Boolean} bPreversekeys = false 
- * @return Array or Object bPreversekeys true или aInput объект 
+ * @return Array or Object if bPreversekeys true
 */
 function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
-	var u = 'undefined', i, iSz, result, inputSize = count(aInput);
+	aInput = __array_slice_normalize_input(aInput);
+	var u = 'undefined', i, iSz, result, inputSize = count(aInput), aKeys = [];
 	iLength = String(iLength) == u ? null : iLength;
 	bPreversekeys = String(bPreversekeys) == u ? false : bPreversekeys;
 	
@@ -298,21 +304,64 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
 			}
 		}
 	}
-	
-	
+		
 	//Сначала делаю с массивом, использовать Array.slice не надо,
 	//там используются индексы во втором аргументе
-	if (aInput instanceof Array && !bPreversekeys) {
-		result = [];
+	result = bPreversekeys ? {} : [];
+	if (aInput instanceof Array) {
 		for (i = iOffset; i < iSz; i++) {
-			result.push(i);
+			if (!bPreversekeys) {
+				result.push(aInput[i]);
+			} else {
+				result[i] = aInput[i];
+			}
 		}
-		//return result;
+		return result;
+	}
+	//Для объекта
+	if (!(aInput instanceof Array)) {
+		for (i in aInput) {
+			if (String( parseInt(i) ) === String(i)) {
+				throw new Error(i + ' is a number key. php.js array_slice does not work with associative array with number keys');
+			}
+			aKeys.push(i);
+		}
+		for (i = iOffset; i < iSz; i++) {
+			if (!bPreversekeys) {
+				result.push(aInput[ aKeys[i] ]);
+			} else {
+				result[ aKeys[i] ] = aInput[ aKeys[i] ];
+			}
+		}
+		return result;
 	}
 	return result;
-	//Потом всё то же с объектом
 	
 }
+/**
+ * @see array_slice
+ * @description Remove all undefined items from array aInput. 
+ * @param {*} aInput
+ * @return Object if input Array containts undefined items
+*/
+function __array_slice_normalize_input(aInput) {
+	if (!(aInput instanceof Array)) {
+		return aInput;
+	}
+	var i, aBuf = {}, n = 0;
+	for (i = 0; i < aInput.length; i++) {
+		if (String(aInput[i]) == 'undefined') {
+			n++;
+		} else {
+			aBuf[i] = aInput[i];
+		}
+	}
+	if (n > 0) {
+		return aBuf;
+	}
+	return aInput;
+}
+
 function array_unique(a){
 	if (!(a instanceof Array) && !!(a instanceof Object)) {
 		return a;
