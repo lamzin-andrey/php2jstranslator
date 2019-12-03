@@ -1,7 +1,7 @@
 function main()
 {
 	var $o;
-	$o = new TestArraySlice();
+	window.tas = $o = new TestArraySlice();
 	$o.testPositiveOffsetAndPositiveLength();
 	$o.testPositiveOffsetAndNegativeLength();
 	$o.testNegativeOffsetAndNegativeLength();

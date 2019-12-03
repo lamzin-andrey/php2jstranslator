@@ -1,9 +1,14 @@
 /** @const LONG_ARRAY_SIZE */
 TestArraySlice.LONG_ARRAY_SIZE = 100;
-/** @property ASSOC_NUMS_ARRAY_SIZE */
+
+/** @const ASSOC_NUMS_ARRAY_SIZE */
 TestArraySlice.ASSOC_NUMS_ARRAY_SIZE = 6;
 
+'/console.php';
 function TestArraySlice() {
+
+
+
 
 		var $i;
 
@@ -19,19 +24,22 @@ function TestArraySlice() {
 			'ten' : 110,
 			'seven' : 17,
 			'fourteen' : 114,
-			'hft' : 142,
-			'hsz' : 160
+			'fortytwo' : 142,
+			'sixty' : 160
 		};
-		console.log(this._assocNums);
+		
 		//Для php нет разницы между этим и предыдушим объявлением, но после трансляции в js разница будет
 
-		/*this._assocNums = [];
-		this._assocNums[5] = 15;
-		this._assocNums[10] = 110;
-		this._assocNums[7] = 17;
-		this._assocNums[14] = 114;
-		this._assocNums[42] = 142;
-		this._assocNums[60] = 160;/**/
+		this._assocNums = {push:__php2js_push__};
+		this._assocNums['five'] = 15;
+		this._assocNums['ten'] = 110;
+		this._assocNums['seven'] = 17;
+		this._assocNums['fourteen'] = 114;
+		this._assocNums['fortytwo'] = 142;
+		this._assocNums['sixty'] = 160;
+		
+		//var_dump($this->_assocNums);die;
+
 	
 }
 
@@ -93,29 +101,14 @@ function TestArraySlice() {
         this._info();
     }
     
-    //ассоциативный массив с числами и preverseKey = true
+    //от начала массива 
 
-    $eArr = [];
-    //от начала массива bPreversekeys = false
-
-    $name = 'ассоциативный от начала массива bPreversekeys = false';
+    $name = 'ассоциативный от начала массива';
     $aR = array_slice(this._assocNums, 0, 3);
-    if (!this._eqAssocSets($aR, [15, 110, 17])) {
-        var_dump($aR);
-        this._errMsg('Error on ' + $name);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //от начала массива bPreversekeys = true
-
-    $name = 'ассоциативный от начала массива bPreversekeys = true';
-    $aR = array_slice(this._assocNums, 0, 3, true);
     $aCtrl = {
-        5 : 15,
-        10 : 110,
-        7 : 17
+        'five' : 15,
+        'ten' : 110,
+        'seven' : 17
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         var_dump($aR);
@@ -125,25 +118,13 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //часть массива bPreversekeys = false
+    //часть массива
 
-    $name = 'часть массива bPreversekeys = false';
+    $name = 'часть массива assoc';
     $aR = array_slice(this._assocNums, 2, 2);
-    if (!this._eqAssocSets($aR, [17, 114])) {
-        var_dump($aR);
-        this._errMsg('Error on ' + $name);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //часть массива bPreversekeys = true
-
-    $name = 'часть массива bPreversekeys = true';
-    $aR = array_slice(this._assocNums, 2, 2, true);
     $aCtrl = {
-        7 : 17,
-        14 : 114
+        'seven' : 17,
+        'fourteen' : 114
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         var_dump($aR);
@@ -179,26 +160,14 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //часть массива с длиной больше чем массив bPreversekeys = false
+    //часть массива с длиной больше чем массив
 
-    $name = 'часть массива с длиной больше чем массив bPreversekeys = false';
+    $name = 'часть массива с длиной больше чем массив';
     $aR = array_slice(this._assocNums, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 3, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE + 3);
-    if (!this._eqAssocSets($aR, [114, 142, 160])) {
-        var_dump($aR);
-        this._errMsg('Error on line ' + $name );
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //часть массива с длиной больше чем массив bPreversekeys = true
-
-    $name = 'часть массива с длиной больше чем массив bPreversekeys = true';
-    $aR = array_slice(this._assocNums, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 3, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE + 3, true);
     $aCtrl = {
-        14 : 114,
-        42 : 142,
-        60 : 160
+        'fourteen' : 114,
+        'fortytwo' : 142,
+        'sixty' : 160
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         var_dump($aR);
@@ -260,28 +229,17 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //ассоциативный с цифрами
+    //ассоциативный 
 
     
-    //отрицательная длина bPreversekeys = false
-
-    $name = 'отрицательная длина bPreversekeys = false';
-    $aR = array_slice(this._assocNums, 0, -1 * (TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 2 ) );
-    if (!this._eqAssocSets($aR, [15, 110])) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
     
-    //отрицательная длина bPreversekeys = true
+    //отрицательная длина
 
-    $name = 'отрицательная длина bPreversekeys = true';
-    $aR = array_slice(this._assocNums, 0, -1 * (TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 2 ), true);
+    $name = 'отрицательная длина';
+    $aR = array_slice(this._assocNums, 0, -1 * (TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 2 ));
     $aCtrl = {
-        5 : 15,
-        10 : 110
+        'five' : 15,
+        'ten' : 110
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         this._errMsg('Error on line ' + $name);
@@ -291,9 +249,9 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //пересечение начала и конца bPreversekeys = false
+    //пересечение начала и конца
 
-    $name = 'пересечение начала и конца bPreversekeys = false';
+    $name = 'пересечение начала и конца';
     $aR = array_slice(this._assocNums, 4, -5);
     if (!this._eqAssocSets($aR, $eAr)) {
         this._errMsg('Error on line ' + $name);
@@ -302,21 +260,11 @@ function TestArraySlice() {
         } else {
         this._info(' . ' + $name);
     }
-    //пересечение начала и конца bPreversekeys = true
-
-    $name = 'пересечение начала и конца bPreversekeys = true';
-    $aR = array_slice(this._assocNums, 4, -5, true);
-    if (!this._eqAssocSets($aR, $eAr)) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
     
-    //offset больше длины массива bPreversekeys = false
+    
+    //offset больше длины массива
 
-    $name = 'offset больше длины массива bPreversekeys = false';
+    $name = 'offset больше длины массива';
     $aR = array_slice(this._assocNums, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE, -1 * (TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 2 ) );
     if (!this._eqAssocSets($aR, $eAr)) {
         this._errMsg('Error on line ' + $name);
@@ -326,34 +274,10 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //offset больше длины массива bPreversekeys = true
+    //length не задан
 
-    $name = 'offset больше длины массива bPreversekeys = true';
-    $aR = array_slice(this._assocNums, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE, -1 * (TestArraySlice.ASSOC_NUMS_ARRAY_SIZE - 2 ), true);
-    if (!this._eqAssocSets($aR, $eAr)) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //length не задан bPreversekeys = false
-
-    $name = 'length не задан bPreversekeys = false';
-    $aR = array_slice(this._assocNums, Math.floor(TestArraySlice.ASSOC_NUMS_ARRAY_SIZE / 2));
-    if (count($aR) != 3) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //length не задан bPreversekeys = true
-
-    $name = 'length не задан bPreversekeys = true';
-    $aR = array_slice(this._assocNums, Math.floor(TestArraySlice.ASSOC_NUMS_ARRAY_SIZE / 2), null, true);
+    $name = 'length не задан';
+    $aR = array_slice(this._assocNums, Math.floor(TestArraySlice.ASSOC_NUMS_ARRAY_SIZE / 2), null);
     if (count($aR) != 3) {
         this._errMsg('Error on line ' + $name);
         var_dump($aR);
@@ -401,12 +325,12 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //ассоциативный массив с цифрами
+    //ассоциативный массив
 
     
-    //для отрицательного offset и отрицательной длины bPreversekeys = false
+    //для отрицательного offset и отрицательной длины
 
-    $name = 'для отрицательного offset и отрицательной длины bPreversekeys = false';
+    $name = 'для отрицательного offset и отрицательной длины';
     $aR = array_slice(this._assocNums, -2, -5);
     $eAr = [];
     if (!this._eqAssocSets($aR, $eAr)) {
@@ -417,39 +341,14 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //для отрицательного offset и отрицательной длины bPreversekeys = true
+    //для отрицательного offset и отрицательной длины 2
 
-    $name = 'для отрицательного offset и отрицательной длины bPreversekeys = true';
-    $aR = array_slice(this._assocNums, -2, -5, true);
-    $eAr = [];
-    if (!this._eqAssocSets($aR, $eAr)) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //для отрицательного offset и отрицательной длины 2 bPreversekeys = false
-
-    $name = 'для отрицательного offset и отрицательной длины 2 bPreversekeys = false';
+    $name = 'для отрицательного offset и отрицательной длины 2';
     $aR = array_slice(this._assocNums, -5, -2);
-    if (!this._eqAssocSets($aR, [110, 17, 114])) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //для отрицательного offset и отрицательной длины 2 bPreversekeys = true
-
-    $name = 'для отрицательного offset и отрицательной длины 2 bPreversekeys = true';
-    $aR = array_slice(this._assocNums, -5, -2, true);
     $aCtrl = {
-        10 : 110,
-        7 : 17,
-        14 : 114
+        'ten' : 110,
+        'seven' : 17,
+        'fourteen' : 114
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         this._errMsg('Error on line ' + $name);
@@ -491,29 +390,17 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //ассоциативный массив с цифрами
+    //ассоциативный массив
 
     
-    //для отрицательного offset и положительной длины 1 bPreversekeys = false
+    //для отрицательного offset и положительной длины 1
 
-    $name = 'для отрицательного offset и положительной длины 1 bPreversekeys = false';
+    $name = 'для отрицательного offset и положительной длины 1';
     $aR = array_slice(this._assocNums, -4, 3);
-    if (!this._eqAssocSets($aR, [17, 114, 142])) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //для отрицательного offset и положительной длины 1 bPreversekeys = true
-
-    $name = 'для отрицательного offset и положительной длины 1 bPreversekeys = true';
-    $aR = array_slice(this._assocNums, -4, 3, true);
     $aCtrl = {
-        7 : 17,
-        14 : 114,
-        42 : 142,
+        'seven' : 17,
+        'fourteen' : 114,
+        'fortytwo' : 142,
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         this._errMsg('Error on line ' + $name);
@@ -523,25 +410,13 @@ function TestArraySlice() {
         this._info(' . ' + $name);
     }
     
-    //для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = false
+    //для отрицательного offset и положительной длины большей чем размер массива
 
-    $name = 'для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = false';
+    $name = 'для отрицательного offset и положительной длины большей чем размер массива';
     $aR = array_slice(this._assocNums, -2, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE);
-    if (!this._eqAssocSets($aR, [142, 160])) {
-        this._errMsg('Error on line ' + $name);
-        var_dump($aR);
-        exit();
-        } else {
-        this._info(' . ' + $name);
-    }
-    
-    //для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = true
-
-    $name = 'для отрицательного offset и положительной длины большей чем размер массива bPreversekeys = true';
-    $aR = array_slice(this._assocNums, -2, TestArraySlice.ASSOC_NUMS_ARRAY_SIZE, true);
     $aCtrl = {
-        42 : 142,
-        60 : 160
+        'fortytwo' : 142,
+        'sixty' : 160
         };
     if (!this._eqAssocSets($aR, $aCtrl)) {
         this._errMsg('Error on line ' + $name);
@@ -582,21 +457,32 @@ function TestArraySlice() {
 	 * Проверка равенства ассоциативного массива
 	 * @return bool
 	*/
-	TestArraySlice.prototype._eqAssocSets = function($arr1, $arr2) {
+	TestArraySlice.prototype._eqAssocSets = function($arr1, $arr2, dBg) {
     
     var $nArr1Sz, $nArr2Sz, $i, $v;
     
     $arr1 = __php2js_clone_argument__($arr1);
     $arr2 = __php2js_clone_argument__($arr2);
     
+    if (dBg) {
+		console.log($arr1);
+		console.log($arr2);
+	}
+   
     $nArr1Sz = count($arr1);
     $nArr2Sz = count($arr2);
     
     if ($nArr1Sz != $nArr2Sz) {
+		if (dBg) {
+			console.log('Diff sizes!');
+		}
         return false;
     }
     
     for ($i in $arr1) { $v = $arr1[$i];
+        if ($i == 'push' && $arr1[$i].name == '__php2js_push__') {
+            continue;
+        }
         if (!isset($arr2, $i)) {
             return false;
         }

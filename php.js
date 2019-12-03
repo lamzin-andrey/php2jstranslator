@@ -65,7 +65,12 @@ function count(data, dbg) {
 		return data.length;
 	}
 	var i, c = 0;
-	for (i in data) c++;
+	for (i in data) {
+		if (i == 'push' && data[i].name == '__php2js_push__') {
+			continue;
+		}
+		c++;
+	}
 	return c;
 }
 function dechex(n) {
@@ -276,14 +281,18 @@ function array_shift(arr) {
  * @param {Array} or {Object} aInput
  * @param {Number] iOffset
  * @param {Number} iLength = null  (as in PHP 5.2.4+)  A NULL length now tells the function to use the length of array. Значение NULL в качестве length теперь означает, что в качестве этого значения будет использована длина массива array.
- * @param {Boolean} bPreversekeys = false 
- * @return Array or Object if bPreversekeys true
+ * param {Boolean} bPreversekeys = false NOT SUPPORTED!
+ * @return Array or Object if aInput is Object
 */
-function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
+function array_slice(aInput, iOffset, iLength) {
 	aInput = __array_slice_normalize_input(aInput);
-	var u = 'undefined', i, iSz, result, inputSize = count(aInput), aKeys = [];
+	var u = 'undefined', i, iSz, result, inputSize = count(aInput), aKeys = [],
+		bPreversekeys = false;
 	iLength = String(iLength) == u ? null : iLength;
-	bPreversekeys = String(bPreversekeys) == u ? false : bPreversekeys;
+	
+	if (!(aInput instanceof Array)) {
+		bPreversekeys = true;
+	}
 	
 	if (iOffset < 0) {
 		iOffset = count(aInput) + iOffset; 
@@ -298,10 +307,6 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
 			iSz = iSz <= inputSize ? iSz : inputSize;
 		} else {
 			iSz = inputSize + iLength;
-			if (bDbg) {
-				console.log('inputSize', inputSize);
-				console.log('iSz', iSz);
-			}
 		}
 	}
 		
@@ -310,11 +315,7 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
 	result = bPreversekeys ? {} : [];
 	if (aInput instanceof Array) {
 		for (i = iOffset; i < iSz; i++) {
-			if (!bPreversekeys) {
-				result.push(aInput[i]);
-			} else {
-				result[i] = aInput[i];
-			}
+			result.push(aInput[i]);
 		}
 		return result;
 	}
@@ -324,14 +325,13 @@ function __array_slice(aInput, iOffset, iLength, bPreversekeys, bDbg) {
 			if (String( parseInt(i) ) === String(i)) {
 				throw new Error(i + ' is a number key. php.js array_slice does not work with associative array with number keys');
 			}
+			if (i == 'push' && aInput[i].name == '__php2js_push__') {
+				continue;
+			}
 			aKeys.push(i);
 		}
 		for (i = iOffset; i < iSz; i++) {
-			if (!bPreversekeys) {
-				result.push(aInput[ aKeys[i] ]);
-			} else {
-				result[ aKeys[i] ] = aInput[ aKeys[i] ];
-			}
+			result[ aKeys[i] ] = aInput[ aKeys[i] ];
 		}
 		return result;
 	}
@@ -348,16 +348,16 @@ function __array_slice_normalize_input(aInput) {
 	if (!(aInput instanceof Array)) {
 		return aInput;
 	}
-	var i, aBuf = {}, n = 0;
+	var i, oBuf = {}, n = 0;
 	for (i = 0; i < aInput.length; i++) {
 		if (String(aInput[i]) == 'undefined') {
 			n++;
 		} else {
-			aBuf[i] = aInput[i];
+			oBuf[i] = aInput[i];
 		}
 	}
 	if (n > 0) {
-		return aBuf;
+		return oBuf;
 	}
 	return aInput;
 }
