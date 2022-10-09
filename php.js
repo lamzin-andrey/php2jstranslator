@@ -3,13 +3,13 @@ $_GET = {};
 $_SERVER = {};
 $_SESSION = {};
 function StdClass() {}
-function extend(a,b){
-	var c=new Function();
-	c.prototype=a.prototype;
-	b.prototype=new c();
-	b.prototype.constructor=b;
-	b.superclass=a.prototype;
-	b.superclass.__construct = a;
+function extend(superClass,child){
+	var c = new Function();
+	c.prototype = superClass.prototype;
+	child.prototype = new c();
+	child.prototype.constructor = child;
+	child.superclass = superClass.prototype;
+	child.superclass.__construct = superClass;
 }
 /**
  * @description В транслированом из php кода js коде тип Object может иметь только то, что в оригинальном коде было ассоциативным массивом
@@ -65,12 +65,7 @@ function count(data, dbg) {
 		return data.length;
 	}
 	var i, c = 0;
-	for (i in data) {
-		if (i == 'push' && data[i].name == '__php2js_push__') {
-			continue;
-		}
-		c++;
-	}
+	for (i in data) c++;
 	return c;
 }
 function dechex(n) {
@@ -95,14 +90,14 @@ function isset(v) {
 		if (dbg) {
 			//window.issetdbg = 0;
 		}
-		return !(String(v) === 'undefined');
+		return false;
 	}
 	for (var i = 1; i < arguments.length; i++) {
 		if (dbg) {
 			console.log('check key = ' + arguments[i]);
 		}
 		v = v[ arguments[i] ];
-		if (!isset(v)) {
+		if (String(v) === 'undefined') {
 			if (dbg) {
 				//window.issetdbg = 0;
 			}
@@ -267,6 +262,16 @@ function array_shift(arr) {
 	}
 	return arr;
 }
+
+function array_sum(a) {
+	var i, r = 0;
+	for (i = 0; i < a.length; i++) {
+		r += a[i];
+	}
+	
+	return r;
+}
+
 /**
  * В процессе https://www.php.net/manual/ru/function.array-slice.php
  * 
@@ -400,6 +405,22 @@ function htmlspecialchars($s) {
 	//return encodeURIComponent($s);
 	return $s;
 }
+
+function implode(glue, arr) {
+	var i, a = [];
+	if (arr instanceof Array) {
+		return arr.join(glue);
+	}
+	
+	if (arr instanceof Object) {
+		for (i in arr) {
+			a.push(arr[i]);
+		}
+	}
+	
+	return a.join(glue);
+}
+
 function in_array(needle, subject, strict) {
 	var i, j, r;
 	if (typeof(subject) == 'array') {
