@@ -387,6 +387,24 @@ function array_unique(a){
 	}
 	return a;
 }
+
+function array_unshift(a) {
+	var i, j, sz = a.length;
+	for (i = 1; i < arguments.length; i++) {
+		a[sz + i - 1] = 0;
+	}
+	
+	sz = arguments.length - 1;
+	for (i = a.length - 1; i > 0; i--) {
+		a[i] = a[i - sz];
+	}
+	
+	for (i = 1, j = 0; i < arguments.length; i++, j++) {
+		a[j] = arguments[i];
+	}
+	return a.length;
+}
+
 function array_fill_keys(arr, value) {
 	var i, res = {};
 	for (i = 0; i < arr.length; i++) {
@@ -463,6 +481,9 @@ function is_array(s) {
 		return true;
 	}
 	return false;
+}
+function is_numeric(s) {
+	return !isNaN( parseFloat(s) ) || !isNaN( parseInt(s, 10) ) || !isNaN( parseInt(s, 16) ) || !isNaN( parseInt(s, 8) );
 }
 function is_string(s) {
 	if (s instanceof String) {
@@ -641,7 +662,6 @@ function sprintf() {
 				format = format.replace(buf, ch);
 			}
 			else {
-				console.log('buf = ' + buf);
 				format = format.replace(buf, 'nAn');
 				throw new Error("sprintf: unable process |" + format + '|');
 			}
@@ -664,6 +684,10 @@ function pathinfo(path) {
 	filename = a.join('.');
 	r.filename = filename;
 	r.extension = ext;
+	if (!r.filename) {
+		r.filename = r.basename;
+		r.extension = '';
+	}
 	return r;
 }
 function array_reverse(a) {
@@ -688,7 +712,7 @@ function array_values(v) {
 }
 
 function array_keys(arr){
-	var r = [];
+	var r = [], v = arr;
 	if (v instanceof Array) {
 		for (var i = 0; i < v.length; i++) {
 			if (v[i]) {
@@ -885,6 +909,9 @@ function file_get_contents($file) {
 		return PHP.file_get_contents($file);
 	}
 	return '';
+}
+function floatval(v){
+	return parseFloat(v);
 }
 function json_encode(d) {
 	return JSON.stringify(d);
