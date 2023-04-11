@@ -200,37 +200,32 @@ function array_map(F, arr) {
 	}
 	return arr;
 }
-function array_merge(arr) {
-	var i, j, sub, k, b;
-	if (arr instanceof Array) {
-		for (i = 1; i < arguments.length; i++) {
-			sub = arguments[i];
-			if (sub instanceof Object) {
-				b = {};
-				for (j = 0; j < arr.length; j++) {
-					b[String[j]] = arr[j];
-				}
-				arr = b;
-				break;
-			}
-		}
-	}
-	for (i = 1; i < arguments.length; i++) {
+function array_merge() {
+	var j, sub, r = {}, nI = 0;
+	
+	for (i = 0; i < arguments.length; i++) {
 		sub = arguments[i];
 		if (!(sub instanceof Array) && !(sub instanceof Object)) {
 			continue;
 		}
 		if (sub instanceof Array) {
 			for (j = 0; j < sub.length; j++) {
-				arr[j] = sub[j];
+				r[nI] = sub[j];
+				nI++;
 			}
 		} else if (sub instanceof Object) {
 			for (j  in sub) {
-				arr[j] = sub[j];
+				if (String(j) === String(parseInt(j))) {
+					r[nI] = sub[j];
+					nI++;
+				} else {
+					r[j] = sub[j];
+				}
 			}
 		}
 	}
-	return arr;
+	
+	return r;
 }
 function array_search(s, arr) {
 	var r = false;
