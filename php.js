@@ -407,6 +407,20 @@ function array_fill_keys(arr, value) {
 	}
 	return res;
 }
+function array_flip(arr) {
+	var i, res = {};
+	if (arr instanceof Array) {
+		for (i = 0; i < arr.length; i++) {
+			res[arr[i]] = i;
+		}
+	}else if (arr instanceof Object) {
+		for (i in arr) {
+			res[arr[i]] = i;
+		}
+	}
+	
+	return res;
+}
 function hexdec(n) {
 	var r =  parseInt(n, 16);
 	if (isNaN(r)) {
