@@ -878,7 +878,26 @@ function rand(min, max) {
 }
 
 
-function session_start() {}
+function session_start(){}
+
+function shuffle(a){
+  var SZ, k, j, b;
+  try {
+	  SZ = a.length - 1;
+	  for(j = 0; j <= SZ; j++){
+		k = rand(0, SZ);
+		if(k != j){
+		  b = a[j];
+		  a[j] = a[k];
+		  a[k] = b;
+		}
+	  }
+  } catch (err) {
+	  return false;
+  }
+  return true;
+}
+
 
 function strtotime(sDate) {
 	return time(sDate);
