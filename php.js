@@ -2,6 +2,7 @@ $_POST = {};
 $_GET = {};
 $_SERVER = {};
 $_SESSION = {};
+var F = false, T = true;
 function StdClass() {}
 function extend(superClass,child){
 	var c = new Function();
@@ -76,9 +77,9 @@ function define(name, val) {
 }
 function defined(name) {
 	if (window[name]) {
-		return true;
+		return T;
 	}
-	return false;
+	return F;
 }
 function isset(v) {
 	var dbg = window.issetdbg;
@@ -90,7 +91,7 @@ function isset(v) {
 		if (dbg) {
 			//window.issetdbg = 0;
 		}
-		return false;
+		return F;
 	}
 	for (var i = 1; i < arguments.length; i++) {
 		if (dbg) {
@@ -101,13 +102,13 @@ function isset(v) {
 			if (dbg) {
 				//window.issetdbg = 0;
 			}
-			return false;
+			return F;
 		}
 	}
 	if (dbg) {
 		//window.issetdbg = 0;
 	}
-	return true;
+	return T;
 }
 function get_defined_vars() {
 	return window;
@@ -228,7 +229,7 @@ function array_merge() {
 	return r;
 }
 function array_search(s, arr) {
-	var r = false;
+	var r = F;
 	$(arr).each(function(i, j) {
 		if (r === false && j == s) {
 			r = i;
@@ -287,11 +288,11 @@ function array_sum(a) {
 function array_slice(aInput, iOffset, iLength) {
 	aInput = __array_slice_normalize_input(aInput);
 	var u = 'undefined', i, iSz, result, inputSize = count(aInput), aKeys = [],
-		bPreversekeys = false;
+		bPreversekeys = F;
 	iLength = String(iLength) == u ? null : iLength;
 	
 	if (!(aInput instanceof Array)) {
-		bPreversekeys = true;
+		bPreversekeys = T;
 	}
 	
 	if (iOffset < 0) {
@@ -458,7 +459,7 @@ function in_array(needle, subject, strict) {
 				r = (j === needle);
 			}
 			if (r) {
-				return true;
+				return T;
 			}
 		}
 	} else if (typeof(subject) == 'object') {
@@ -469,11 +470,11 @@ function in_array(needle, subject, strict) {
 				r = (j === needle);
 			}
 			if (r) {
-				return true;
+				return T;
 			}
 		}
 	}
-	return false;
+	return F;
 }
 function intval(i) {
 	var r = parseInt(i, 10);
@@ -481,27 +482,42 @@ function intval(i) {
 }
 function is_array(s) {
 	if (s instanceof Array) {
-		return true;
+		return T;
 	}
 	if (typeof(s) == 'array') {
-		return true;
+		return F;
 	}
 	if (typeof(s) == 'object') {
-		return true;
+		return T;
 	}
-	return false;
+	return F;
+}
+function is_callable(f) {
+	var m, c;
+	if (!is_array(f)) {
+		return _isF(f);
+	}
+	if (count(f) != 2) {
+		return F;
+	}
+	c = f[0];
+	m = f[1];
+	return _isF(c[m]) || _isF(m);
+}
+function _isF(f) {
+	return (f instanceof Function);
 }
 function is_numeric(s) {
 	return !isNaN( parseFloat(s) ) || !isNaN( parseInt(s, 10) ) || !isNaN( parseInt(s, 16) ) || !isNaN( parseInt(s, 8) );
 }
 function is_string(s) {
 	if (s instanceof String) {
-		return true;
+		return T;
 	}
 	if (typeof(s) == 'string') {
-		return true;
+		return T;
 	}
-	return false;
+	return F;
 }
 /**
  * @description 
@@ -555,14 +571,14 @@ function sqrt(a) {
 
 function empty(v) {
 	if (!v) {
-		return true;
+		return T;
 	}
 	if (v instanceof Array) {
 		if (v.length == 0) {
-			return true;
+			return T;
 		}
 	}
-	return false;
+	return F;
 }
 function exit() {
 	throw new Error("Exit");
@@ -612,7 +628,7 @@ function sprintf() {
 	if (typeof(format) == 'array') {
 		throw new Error('Sprintf got array');
 	}
-	while (true) {
+	while (T) {
 		i = format.indexOf('%');
 		if (~i) {
 			buf = '';
@@ -745,7 +761,7 @@ function strpos(s, needle, offset) {
 	offset = parseInt(offset) ? parseInt(offset) : 0;
 	var n = s.indexOf(needle, offset);
 	if (n == -1) {
-		return false;
+		return F;
 	}
 	return n;
 }
@@ -762,7 +778,7 @@ function _strrpos(s, needle, offset) {
 	}
 	var n = s.lastIndexOf(needle, offset);
 	if (n == -1) {
-		return false;
+		return F;
 	}
 	return n;
 }
@@ -809,13 +825,13 @@ function strrpos(s, needle, offset) {
 	} else {
 		if (offset >= s.length - 1 && sourceOffset !== 0 && String(sourceOffset) !== 'undefined') {
 			//writeln('return false here!');
-			return false;
+			return F;
 		}
 		offset = s.length;
 	}
 	var n = s.lastIndexOf(needle, offset);
 	if (n == -1) {
-		return false;
+		return F;
 	}
 	return n;
 }
@@ -831,9 +847,9 @@ function max(arr) {
 }
 function method_exists(obj, foo) {
 	if (obj[foo] instanceof Function) {
-		return true;
+		return T;
 	}
-	return false;
+	return F;
 }
 function md5(s){
 	//TODO
@@ -858,7 +874,7 @@ function mb_substr(s, index, length) {
 function mb_strpos(s, substr) {
 	var i = s.indexOf(substr);
 	if (i == -1) {
-		return false;
+		return F;
 	}
 	return i;
 }
@@ -893,9 +909,9 @@ function shuffle(a){
 		}
 	  }
   } catch (err) {
-	  return false;
+	  return F;
   }
-  return true;
+  return T;
 }
 
 
@@ -929,7 +945,7 @@ function file_exists(filename) {
 	if (window.PHP && PHP.file_exists) {
 		return PHP.file_exists(filename);
 	}
-	return false;
+	return F;
 }
 
 function file_get_contents($file) {
